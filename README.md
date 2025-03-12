@@ -27,24 +27,36 @@ Then edit `.env` with your dbt Semantic Layer credentials:
 - `DBT_ENV_ID`: Your dbt environment ID
 - `DBT_TOKEN`: Your service token
 
-## Configure for Claude Desktop
+### Install
 
-Assuming `EDITOR` enviornment variable is configured and standard install location of Claude Desktop for macOS:
 ```shell
-$EDITOR ~/Library/Application\ Support/Claude/claude_desktop_config.json
+mcp install minimal_server.py --name "dbt Minimal" --with "mcp[cli]" --with "requests>=2.31.0" --with "python-dotenv>=1.0.0"
 ```
 
-Add the following configuration (where `YOUR_INSTALL_PATH` is the working directory of this virtual environment (hint: use output of `pwd`)):
+This command will add an entry like the following to `claude_desktop_config.json`:
 
 ```json
-{
-  "mcpServers": {
     "dbt Minimal": {
-      "command": "/YOUR_INSTALL_PATH/dbt-mcp-prototype/venv/bin/python",
-      "args": ["/YOUR_INSTALL_PATH/dbt-mcp-prototype/minimal_server.py"]
+      "command": "uv",
+      "args": [
+        "run",
+        "--with",
+        "mcp[cli]",
+        "--with",
+        "python-dotenv>=1.0.0",
+        "--with",
+        "requests",
+        "mcp",
+        "run",
+        "/YOUR_INSTALL_PATH/dbt-mcp-prototype/minimal_server.py"
+      ]
     },
-  }
-}
+```
+
+Assuming `EDITOR` enviornment variable is configured and standard install location of Claude Desktop for macOS, you can examine it like this:
+
+```shell
+$EDITOR ~/Library/Application\ Support/Claude/claude_desktop_config.json
 ```
 
 ## Usage
@@ -59,3 +71,9 @@ Available commands:
 
 - Python 3.7+
 - dbt Semantic Layer access
+
+### Local development
+
+```shell
+mcp dev minimal_server.py --with "mcp[cli]" --with "requests>=2.31.0" --with "python-dotenv>=1.0.0"
+```

@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 """
 Minimal MCP Server for dbt Semantic Layer that just lists metrics
+
+Environment Variables:
+    DBT_HOST: The dbt Semantic Layer host (e.g., semantic-layer.cloud.getdbt.com)
+    DBT_ENV_ID: The dbt environment ID
+    DBT_TOKEN: The service token for authentication
 """
 
 import json
@@ -20,8 +25,28 @@ CONFIG = {
     "is_connected": False
 }
 
-# Try to connect automatically if environment variables are set
-if CONFIG["host"] and CONFIG["environment_id"] and CONFIG["token"]:
+# Set this to True to automatically connect when MCP server starts
+AUTO_CONNECT = True
+
+def check_required_env_vars():
+    """Check if all required environment variables are set"""
+    missing_vars = []
+    for var in ["DBT_HOST", "DBT_ENV_ID", "DBT_TOKEN"]:
+        if not os.environ.get(var):
+            missing_vars.append(var)
+    return missing_vars
+
+def auto_connect():
+    """Automatically connect to the semantic layer using environment variables"""
+    missing_vars = check_required_env_vars()
+    if missing_vars:
+        print(f"Cannot auto-connect: Missing environment variables: {', '.join(missing_vars)}")
+        print("Please set the following environment variables:")
+        print("  - DBT_HOST: The dbt Semantic Layer host")
+        print("  - DBT_ENV_ID: The dbt environment ID")
+        print("  - DBT_TOKEN: The service token")
+        return False
+        
     try:
         url = f"https://{CONFIG['host']}/api/graphql"
         headers = {"Authorization": f"Bearer {CONFIG['token']}"}
@@ -31,7 +56,7 @@ if CONFIG["host"] and CONFIG["environment_id"] and CONFIG["token"]:
           }}
         }}"""
         
-        print(f"Executing GraphQL query: {query}")
+        print(f"Auto-connecting to semantic layer at {CONFIG['host']}...")
         
         response = requests.post(
             url, 
@@ -42,14 +67,21 @@ if CONFIG["host"] and CONFIG["environment_id"] and CONFIG["token"]:
         data = response.json()
         if "errors" not in data:
             CONFIG["is_connected"] = True
-            print(f"Successfully connected to {CONFIG['host']} using environment variables")
+            print(f"Successfully connected to {CONFIG['host']}")
+            return True
         else:
             print(f"Connection error: {data['errors']}")
+            return False
     except Exception as e:
-        print(f"Failed to connect using environment variables: {str(e)}")
+        print(f"Failed to connect: {str(e)}")
+        return False
+
+# Try to connect automatically if enabled
+if AUTO_CONNECT:
+    auto_connect()
 
 @mcp.tool()
-def connect(host, environment_id, token):
+def connect(host=None, environment_id=None, token=None):
     """
     Connect to the dbt Semantic Layer
     
@@ -58,6 +90,14 @@ def connect(host, environment_id, token):
         environment_id: The dbt environment ID
         token: The service token
     """
+    # Use provided values or fall back to environment variables
+    host = host or os.environ.get("DBT_HOST")
+    environment_id = environment_id or os.environ.get("DBT_ENV_ID")
+    token = token or os.environ.get("DBT_TOKEN")
+    
+    if not (host and environment_id and token):
+        return "Missing connection parameters. Please provide host, environment_id, and token."
+    
     CONFIG["host"] = host
     CONFIG["environment_id"] = environment_id
     CONFIG["token"] = token
@@ -73,6 +113,7 @@ def connect(host, environment_id, token):
         }}"""
         
         print(f"Executing GraphQL query: {query}")
+        print(f"Using connection: {host}, {environment_id}, token: (hidden)")
         
         response = requests.post(
             url, 
@@ -97,7 +138,11 @@ def list_metrics():
     List all metrics from the dbt Semantic Layer
     """
     if not CONFIG["is_connected"]:
-        return "Not connected. Use connect() first."
+        # Try to auto-connect first instead of returning an error
+        if auto_connect():
+            print("Auto-connected to the semantic layer")
+        else:
+            return "Not connected. Use connect() first."
     
     try:
         url = f"https://{CONFIG['host']}/api/graphql"
@@ -136,7 +181,11 @@ def get_dimensions(metrics):
         metrics: List of metric names or a single metric name
     """
     if not CONFIG["is_connected"]:
-        return "Not connected. Use connect() first."
+        # Try to auto-connect first instead of returning an error
+        if auto_connect():
+            print("Auto-connected to the semantic layer")
+        else:
+            return "Not connected. Use connect() first."
     
     try:
         # Ensure metrics is a list
@@ -191,7 +240,11 @@ def get_granularities(metrics):
         metrics: List of metric names or a single metric name
     """
     if not CONFIG["is_connected"]:
-        return "Not connected. Use connect() first."
+        # Try to auto-connect first instead of returning an error
+        if auto_connect():
+            print("Auto-connected to the semantic layer")
+        else:
+            return "Not connected. Use connect() first."
     
     try:
         # Ensure metrics is a list
@@ -241,7 +294,11 @@ def query_metrics(metrics, group_by=None, time_grain=None, limit=None):
         limit: Optional limit for number of results
     """
     if not CONFIG["is_connected"]:
-        return "Not connected. Use connect() first."
+        # Try to auto-connect first instead of returning an error
+        if auto_connect():
+            print("Auto-connected to the semantic layer")
+        else:
+            return "Not connected. Use connect() first."
     
     try:
         # Ensure metrics is a list
@@ -359,4 +416,27 @@ def query_metrics(metrics, group_by=None, time_grain=None, limit=None):
         return f"Error querying metrics: {str(e)}"
 
 if __name__ == "__main__":
+    # Check environment variables and connection status
+    missing_vars = check_required_env_vars()
+    if missing_vars:
+        print("\n⚠️ Missing required environment variables:")
+        print(f"   {', '.join(missing_vars)}")
+        print("\nPlease set these environment variables before starting the server.")
+        print("You can set them using:")
+        for var in missing_vars:
+            print(f"export {var}=<your-value>")
+        print()
+    
+    # Try to connect if auto-connect is enabled
+    if AUTO_CONNECT and not CONFIG["is_connected"]:
+        auto_connect()
+    
+    # Show connection status
+    if CONFIG["is_connected"]:
+        print("\n✅ Ready to use! The semantic layer connection is active.")
+        print("Available metrics: Use 'list_metrics()' to see all metrics\n")
+    else:
+        print("\n⚠️ Not connected to the semantic layer.")
+        print("Make sure environment variables are set and use 'connect()' to establish a connection.\n")
+    
     mcp.run()

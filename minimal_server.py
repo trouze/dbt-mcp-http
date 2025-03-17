@@ -13,6 +13,10 @@ import os
 import time
 import requests
 from mcp.server.fastmcp import FastMCP
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Create the MCP server
 mcp = FastMCP("dbt Minimal")

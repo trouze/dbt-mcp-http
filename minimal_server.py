@@ -14,6 +14,10 @@ import time
 import requests
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Load environment variables from .env file
 load_dotenv()

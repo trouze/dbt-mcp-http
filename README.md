@@ -61,8 +61,11 @@ $EDITOR ~/Library/Application\ Support/Claude/claude_desktop_config.json
 
 ## Usage
 
-Available commands:
+Currently implemented commands:
+- `connect()`: Connect to the dbt Semantic Layer
 - `list_metrics()`: List all available metrics
+
+Stub commands (to be implemented):
 - `get_dimensions(metrics)`: Get available dimensions for specified metrics
 - `get_granularities(metrics)`: Get available time granularities for metrics
 - `query_metrics(metrics, group_by=None, time_grain=None, limit=None)`: Query metrics with optional grouping and filtering

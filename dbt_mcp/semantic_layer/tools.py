@@ -8,11 +8,12 @@ import requests
 from semantic_layer.types import DimensionToolResponse, MetricToolResponse
 
 def register_sl_tools(dbt_mcp: FastMCP, config: Config) -> None:
+    sl_host = f"semantic-layer.{config.host}"
 
     semantic_layer_client = SemanticLayerClient(
         environment_id=config.environment_id,
         auth_token=config.token,
-        host=f"semantic-layer.{config.host}",
+        host=sl_host,
     )
 
     @dbt_mcp.tool()
@@ -99,7 +100,7 @@ def register_sl_tools(dbt_mcp: FastMCP, config: Config) -> None:
             }}
             """
 
-            url = f"https://{config.host}/api/graphql"
+            url = f"https://{sl_host}/api/graphql"
             headers = {"Authorization": f"Bearer {config.token}"}
 
             print(f"Executing GraphQL mutation: {mutation}")

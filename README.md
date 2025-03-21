@@ -1,41 +1,38 @@
-# dbt MCP Minimal Server
+# dbt MCP Server
 
-A minimal MCP (Metrics Control Plane) server for interacting with the dbt Semantic Layer.
-
-## Requirements
-
-- Python 3.12+
-- dbt Semantic Layer access
+A MCP (Model Context Protocol) server for interacting with dbt resources.
 
 ## Setup
 
 1. Clone the repository:
-```bash
+```shell
 git clone https://github.com/dbt-labs/dbt-mcp-prototype.git
 cd dbt-mcp-prototype
 ```
 
-2. Set up your Python environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install --upgrade pip
-pip install -r requirements.txt
-```
+2. [Install uv](https://docs.astral.sh/uv/getting-started/installation/)
 
-3. Configure environment variables:
-```bash
+3. Run `uv sync`
+
+4. Configure environment variables:
+```shell
 cp .env.example .env
 ```
-Then edit `.env` with your dbt Semantic Layer credentials:
-- `DBT_HOST`: Your dbt Semantic Layer host
+Then edit `.env` with your specific environment variables:
+- `DISABLE_DBT_CORE`: Set this to `true` to disable dbt Core MCP objects. Otherwise, they are enabled.
+- `DISABLE_SEMANTIC_LAYER`: Set this to `true` to disable dbt Semantic Layer MCP objects. Otherwise, they are enabled.
+- `DISABLE_DISCOVERY`: Set this to `true` to disable dbt Discovery API MCP objects. Otherwise, they are enabled.
+- `DBT_HOST`: Your dbt Cloud instance hostname. This will look like an `Access URL` found [here](https://docs.getdbt.com/docs/cloud/about-cloud/access-regions-ip-addresses).
 - `DBT_ENV_ID`: Your dbt environment ID
-- `DBT_TOKEN`: Your service token
+- `DBT_TOKEN`: Your personal access token or service token. Service token is required when using the Semantic Layer.
+- `DBT_PROJECT_DIR`: The path to your dbt Project.
+- `DBT_PATH`: The path to your dbt executable.
 
-### Install
+
+### Install in Claude Desktop
 
 ```shell
-mcp install main.py --name "dbt" --with "mcp[cli]" --with "requests>=2.31.0" --with "python-dotenv>=1.0.0"
+mcp install dbt_mcp/main.py --name "dbt" --with "mcp[cli]" --with "requests>=2.31.0" --with "python-dotenv>=1.0.0"
 ```
 
 This command will add an entry like the following to `claude_desktop_config.json`:
@@ -64,18 +61,14 @@ Assuming `EDITOR` environment variable is configured and standard install locati
 $EDITOR ~/Library/Application\ Support/Claude/claude_desktop_config.json
 ```
 
-## Usage
-
-Currently implemented commands:
-- `list_metrics()`: List all available metrics
-
-Stub commands (to be implemented):
-- `get_dimensions(metrics)`: Get available dimensions for specified metrics
-- `get_granularities(metrics)`: Get available time granularities for metrics
-- `query_metrics(metrics, group_by=None, time_grain=None, limit=None)`: Query metrics with optional grouping and filtering
-
 ### Local development
 
+- Run the development server:
 ```shell
-mcp dev minimal_server.py --with "mcp[cli]" --with "requests>=2.31.0" --with "python-dotenv>=1.0.0"
+mcp dev dbt_mcp/main.py --with "mcp[cli]" --with "requests>=2.31.0" --with "python-dotenv>=1.0.0"
+```
+
+- Run inspector:
+```shell
+npx @modelcontextprotocol/inspector mcp run dbt_mcp/main.py
 ```

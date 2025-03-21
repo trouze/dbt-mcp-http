@@ -1,0 +1,12 @@
+[project]
+name = "dbt-mcp"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "dbt-sl-sdk[sync]>=0.8.0",
+  "mcp[cli]>=1.4.1",
+  "python-dotenv>=1.0.1",
+  "requests>=2.32.3",
+]

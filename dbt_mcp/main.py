@@ -11,19 +11,17 @@ Environment Variables:
 import json
 import os
 import time
-import requests
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
-from dotenv import load_dotenv
-
-# Load environment variables from .env file
-load_dotenv()
+from dbtsl import SemanticLayerClient
+import requests
+from semantic_layer.types import DimensionToolResponse, MetricToolResponse
 
 # Load environment variables from .env file
 load_dotenv()
 
 # Create the MCP server
-mcp = FastMCP("dbt Minimal")
+mcp = FastMCP("dbt")
 
 # Global config to store connection information
 CONFIG = {
@@ -33,6 +31,19 @@ CONFIG = {
     "is_connected": False
 }
 
+host = os.environ.get("DBT_HOST")
+environment_id = os.environ.get("DBT_ENV_ID")
+token = os.environ.get("DBT_TOKEN")
+
+if not host or not environment_id or not token:
+    raise ValueError("Missing required environment variables: DBT_HOST, DBT_ENV_ID, DBT_TOKEN.")
+
+semantic_layer_client = SemanticLayerClient(
+    environment_id=int(environment_id),
+    auth_token=token,
+    host=host,
+)
+
 def check_required_env_vars():
     """Check if all required environment variables are set"""
     missing_vars = []
@@ -41,7 +52,7 @@ def check_required_env_vars():
             missing_vars.append(var)
     return missing_vars
 
-def test_sl_connection():
+def test_sl_connection() -> bool:
     """Test the connection to the semantic layer"""
     missing_vars = check_required_env_vars()
     if missing_vars:
@@ -88,85 +99,20 @@ def list_metrics():
     """
     List all metrics from the dbt Semantic Layer
     """
-    try:
-        url = f"https://{CONFIG['host']}/api/graphql"
-        headers = {"Authorization": f"Bearer {CONFIG['token']}"}
-        query = f"""{{
-          metrics(environmentId: "{CONFIG['environment_id']}") {{
-            name
-            description
-            type
-          }}
-        }}"""
-
-        print(f"Executing GraphQL query: {query}")
-
-        response = requests.post(
-            url,
-            headers=headers,
-            json={"query": query}
-        )
-
-        data = response.json()
-
-        if "errors" in data:
-            return f"GraphQL error: {data['errors']}"
-
-        return json.dumps(data["data"]["metrics"], indent=2)
-    except Exception as e:
-        return f"Error listing metrics: {str(e)}"
+    with semantic_layer_client.session():
+        return [MetricToolResponse(m.name,m.type, m.label, m.description) for m in semantic_layer_client.metrics()]
 
 @mcp.tool()
-def get_dimensions(metrics):
+def get_dimensions(metrics: list[str]):
     """
     Get available dimensions for specified metrics
 
     Args:
         metrics: List of metric names or a single metric name
     """
-    try:
-        # Ensure metrics is a list
-        if isinstance(metrics, str):
-            metrics = [metrics]
+    with semantic_layer_client.session():
+        return [DimensionToolResponse(d.name, d.type, d.description, d.label) for d in semantic_layer_client.dimensions(metrics)]
 
-        # Generate metric list string for GraphQL
-        metric_list = ", ".join([f"{{name: \"{metric}\"}}" for metric in metrics])
-
-        url = f"https://{CONFIG['host']}/api/graphql"
-        headers = {"Authorization": f"Bearer {CONFIG['token']}"}
-        query = f"""
-        {{
-          dimensions(
-            environmentId: "{CONFIG['environment_id']}"
-            metrics: [{metric_list}]
-          ) {{
-            name
-            description
-            type
-            typeParams {{
-              timeGranularity
-            }}
-            queryableGranularities
-          }}
-        }}
-        """
-
-        print(f"Executing GraphQL query: {query}")
-
-        response = requests.post(
-            url,
-            headers=headers,
-            json={"query": query}
-        )
-
-        data = response.json()
-
-        if "errors" in data:
-            return f"GraphQL error: {data['errors']}"
-
-        return json.dumps(data["data"]["dimensions"], indent=2)
-    except Exception as e:
-        return f"Error getting dimensions: {str(e)}"
 
 @mcp.tool()
 def get_granularities(metrics):
@@ -213,25 +159,22 @@ def get_granularities(metrics):
         return f"Error getting granularities: {str(e)}"
 
 @mcp.tool()
-def query_metrics(metrics, group_by=None, time_grain=None, limit=None):
+def query_metrics(
+    metrics: list[str],
+    group_by: list[str] | None = None,
+    time_grain: str | None = None,
+    limit: int | None = None
+):
     """
     Query metrics with optional grouping and filtering
 
     Args:
-        metrics: List of metric names or a single metric name
-        group_by: Optional list of dimensions to group by or a single dimension
+        metrics: List of metric names
+        group_by: Optional list of dimensions to group by
         time_grain: Optional time grain (DAY, WEEK, MONTH, QUARTER, YEAR)
         limit: Optional limit for number of results
     """
     try:
-        # Ensure metrics is a list
-        if isinstance(metrics, str):
-            metrics = [metrics]
-
-        # Ensure group_by is a list if provided
-        if group_by and isinstance(group_by, str):
-            group_by = [group_by]
-
         # Generate metric list string for GraphQL
         metric_list = ", ".join([f"{{name: \"{metric}\"}}" for metric in metrics])
 

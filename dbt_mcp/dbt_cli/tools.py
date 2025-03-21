@@ -2,15 +2,20 @@ import subprocess
 from config.config import Config
 from mcp.server.fastmcp import FastMCP
 
-def register_dbt_core_tools(dbt_mcp: FastMCP, config: Config) -> None:
+def register_dbt_cli_tools(dbt_mcp: FastMCP, config: Config) -> None:
 
     def _run_dbt_command(command: list[str]) -> str:
-        return subprocess.run(
+        result = subprocess.run(
             args=[config.dbt_command, *command],
             cwd=config.project_dir,
             capture_output=True,
             text=True,
-        ).stdout
+        )
+        # Cloud CLI reports errors to stderr, Core CLI reports errors to stdout
+        if config.dbt_executable_type == "cloud" and  result.returncode != 0:
+            return result.stderr
+        else:
+            return result.stdout
 
     @dbt_mcp.tool()
     def build() -> str:

@@ -19,46 +19,33 @@ cd dbt-mcp-prototype
 cp .env.example .env
 ```
 Then edit `.env` with your specific environment variables:
-- `DISABLE_DBT_CORE`: Set this to `true` to disable dbt Core MCP objects. Otherwise, they are enabled.
+- `DISABLE_DBT_CLI`: Set this to `true` to disable dbt Core and dbt Cloud CLI MCP objects. Otherwise, they are enabled.
 - `DISABLE_SEMANTIC_LAYER`: Set this to `true` to disable dbt Semantic Layer MCP objects. Otherwise, they are enabled.
 - `DISABLE_DISCOVERY`: Set this to `true` to disable dbt Discovery API MCP objects. Otherwise, they are enabled.
 - `DBT_HOST`: Your dbt Cloud instance hostname. This will look like an `Access URL` found [here](https://docs.getdbt.com/docs/cloud/about-cloud/access-regions-ip-addresses).
 - `DBT_ENV_ID`: Your dbt environment ID
 - `DBT_TOKEN`: Your personal access token or service token. Service token is required when using the Semantic Layer.
 - `DBT_PROJECT_DIR`: The path to your dbt Project.
-- `DBT_PATH`: The path to your dbt executable.
+- `DBT_PATH`: The path to your dbt Core or dbt Cloud CLI executable. You can find your dbt executable by running `which dbt`.
+- `DBT_EXECUTABLE_TYPE`: Set this to `core` if the `DBT_PATH` environment variable points toward dbt Core. Otherwise, dbt Cloud CLI is assumed
 
 
 ### Install in Claude Desktop
 
-```shell
-mcp install dbt_mcp/main.py --name "dbt" --with "mcp[cli]" --with "requests>=2.31.0" --with "python-dotenv>=1.0.0"
-```
-
-This command will add an entry like the following to `claude_desktop_config.json`:
+Follow [these](https://modelcontextprotocol.io/quickstart/user) instructions to add the `dbt-mcp` `claude_desktop_config.json` configuration. After you have gone through the [Setup](#setup) instructions. It can look like this. Be sure to replace `<path-to-this-directory>`:
 
 ```json
+{
+  "mcpServers": {
     "dbt": {
-      "command": "uv",
+      "command": "<path-to-this-directory>/.venv/bin/mcp",
       "args": [
         "run",
-        "--with",
-        "mcp[cli]",
-        "--with",
-        "python-dotenv>=1.0.0",
-        "--with",
-        "requests",
-        "mcp",
-        "run",
-        "/YOUR_INSTALL_PATH/dbt-mcp-prototype/main.py"
+        "<path-to-this-directory>/dbt_mcp/main.py"
       ]
-    },
-```
-
-Assuming `EDITOR` environment variable is configured and standard install location of Claude Desktop for macOS, you can examine it like this:
-
-```shell
-$EDITOR ~/Library/Application\ Support/Claude/claude_desktop_config.json
+    }
+  }
+}
 ```
 
 ### Local development

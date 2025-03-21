@@ -1,34 +1,18 @@
 import os
 from dbtsl import SemanticLayerClient
-from dotenv import load_dotenv
+from config.config import Config
 from semantic_layer.types import MetricToolResponse
 import time
 from mcp.server.fastmcp import FastMCP
 import requests
 from semantic_layer.types import DimensionToolResponse, MetricToolResponse
 
-def register_sl_tools(dbt_mcp: FastMCP) -> None:
-
-    load_dotenv()
-
-    CONFIG = {
-        "host": os.environ.get("DBT_HOST"),
-        "environment_id": os.environ.get("DBT_ENV_ID"),
-        "token": os.environ.get("DBT_TOKEN"),
-        "is_connected": False
-    }
-
-    host = os.environ.get("DBT_HOST")
-    environment_id = os.environ.get("DBT_ENV_ID")
-    token = os.environ.get("DBT_TOKEN")
-
-    if not host or not environment_id or not token:
-        raise ValueError("Missing required environment variables: DBT_HOST, DBT_ENV_ID, DBT_TOKEN.")
+def register_sl_tools(dbt_mcp: FastMCP, config: Config) -> None:
 
     semantic_layer_client = SemanticLayerClient(
-        environment_id=int(environment_id),
-        auth_token=token,
-        host=host,
+        environment_id=config.environment_id,
+        auth_token=config.token,
+        host=config.host,
     )
 
     @dbt_mcp.tool()
@@ -105,7 +89,7 @@ def register_sl_tools(dbt_mcp: FastMCP) -> None:
             mutation = f"""
             mutation {{
             createQuery(
-                environmentId: "{CONFIG['environment_id']}"
+                environmentId: "{config.environment_id}"
                 metrics: [{metric_list}]
                 {group_by_section}
                 {limit_section}
@@ -115,8 +99,8 @@ def register_sl_tools(dbt_mcp: FastMCP) -> None:
             }}
             """
 
-            url = f"https://{CONFIG['host']}/api/graphql"
-            headers = {"Authorization": f"Bearer {CONFIG['token']}"}
+            url = f"https://{config.host}/api/graphql"
+            headers = {"Authorization": f"Bearer {config.token}"}
 
             print(f"Executing GraphQL mutation: {mutation}")
 
@@ -146,7 +130,7 @@ def register_sl_tools(dbt_mcp: FastMCP) -> None:
                 # Query for results
                 result_query = f"""
                 {{
-                query(environmentId: "{CONFIG['environment_id']}", queryId: "{query_id}") {{
+                query(environmentId: "{config.environment_id}", queryId: "{query_id}") {{
                     status
                     error
                     jsonResult(encoded: false)

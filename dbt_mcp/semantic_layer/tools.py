@@ -12,7 +12,7 @@ def register_sl_tools(dbt_mcp: FastMCP, config: Config) -> None:
     semantic_layer_client = SemanticLayerClient(
         environment_id=config.environment_id,
         auth_token=config.token,
-        host=config.host,
+        host=f"semantic-layer.{config.host}",
     )
 
     @dbt_mcp.tool()

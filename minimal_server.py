@@ -33,9 +33,6 @@ CONFIG = {
     "is_connected": False
 }
 
-# Set this to True to automatically connect when MCP server starts
-AUTO_CONNECT = True
-
 def check_required_env_vars():
     """Check if all required environment variables are set"""
     missing_vars = []
@@ -44,8 +41,8 @@ def check_required_env_vars():
             missing_vars.append(var)
     return missing_vars
 
-def auto_connect():
-    """Automatically connect to the semantic layer using environment variables"""
+def test_sl_connection():
+    """Test the connection to the semantic layer"""
     missing_vars = check_required_env_vars()
     if missing_vars:
         print(f"Cannot auto-connect: Missing environment variables: {', '.join(missing_vars)}")
@@ -84,22 +81,13 @@ def auto_connect():
         print(f"Failed to connect: {str(e)}")
         return False
 
-# Try to connect automatically if enabled
-if AUTO_CONNECT:
-    auto_connect()
+test_sl_connection()
 
 @mcp.tool()
 def list_metrics():
     """
     List all metrics from the dbt Semantic Layer
     """
-    if not CONFIG["is_connected"]:
-        # Try to auto-connect first instead of returning an error
-        if auto_connect():
-            print("Auto-connected to the semantic layer")
-        else:
-            return "Not connected. Use connect() first."
-
     try:
         url = f"https://{CONFIG['host']}/api/graphql"
         headers = {"Authorization": f"Bearer {CONFIG['token']}"}
@@ -136,13 +124,6 @@ def get_dimensions(metrics):
     Args:
         metrics: List of metric names or a single metric name
     """
-    if not CONFIG["is_connected"]:
-        # Try to auto-connect first instead of returning an error
-        if auto_connect():
-            print("Auto-connected to the semantic layer")
-        else:
-            return "Not connected. Use connect() first."
-
     try:
         # Ensure metrics is a list
         if isinstance(metrics, str):
@@ -195,13 +176,6 @@ def get_granularities(metrics):
     Args:
         metrics: List of metric names or a single metric name
     """
-    if not CONFIG["is_connected"]:
-        # Try to auto-connect first instead of returning an error
-        if auto_connect():
-            print("Auto-connected to the semantic layer")
-        else:
-            return "Not connected. Use connect() first."
-
     try:
         # Ensure metrics is a list
         if isinstance(metrics, str):
@@ -249,13 +223,6 @@ def query_metrics(metrics, group_by=None, time_grain=None, limit=None):
         time_grain: Optional time grain (DAY, WEEK, MONTH, QUARTER, YEAR)
         limit: Optional limit for number of results
     """
-    if not CONFIG["is_connected"]:
-        # Try to auto-connect first instead of returning an error
-        if auto_connect():
-            print("Auto-connected to the semantic layer")
-        else:
-            return "Not connected. Use connect() first."
-
     try:
         # Ensure metrics is a list
         if isinstance(metrics, str):
@@ -384,8 +351,8 @@ if __name__ == "__main__":
         print()
 
     # Try to connect if auto-connect is enabled
-    if AUTO_CONNECT and not CONFIG["is_connected"]:
-        auto_connect()
+    if not CONFIG["is_connected"]:
+        test_sl_connection()
 
     # Show connection status
     if CONFIG["is_connected"]:

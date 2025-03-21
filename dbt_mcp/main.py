@@ -1,13 +1,3 @@
-#!/usr/bin/env python
-"""
-Minimal MCP Server for dbt Semantic Layer that just lists metrics
-
-Environment Variables:
-    DBT_HOST: The dbt Semantic Layer host (e.g., semantic-layer.cloud.getdbt.com)
-    DBT_ENV_ID: The dbt environment ID
-    DBT_TOKEN: The service token for authentication
-"""
-
 import json
 import os
 import time
@@ -44,7 +34,7 @@ semantic_layer_client = SemanticLayerClient(
     host=host,
 )
 
-def check_required_env_vars():
+def check_required_env_vars() -> list[str]:
     """Check if all required environment variables are set"""
     missing_vars = []
     for var in ["DBT_HOST", "DBT_ENV_ID", "DBT_TOKEN"]:
@@ -95,15 +85,23 @@ def test_sl_connection() -> bool:
 test_sl_connection()
 
 @mcp.tool()
-def list_metrics():
+def list_metrics() -> list[MetricToolResponse]:
     """
     List all metrics from the dbt Semantic Layer
     """
     with semantic_layer_client.session():
-        return [MetricToolResponse(m.name,m.type, m.label, m.description) for m in semantic_layer_client.metrics()]
+        return [
+            MetricToolResponse(
+                name=m.name,
+                type=m.type,
+                label=m.label,
+                description=m.description,
+            )
+            for m in semantic_layer_client.metrics()
+        ]
 
 @mcp.tool()
-def get_dimensions(metrics: list[str]):
+def get_dimensions(metrics: list[str]) -> list[DimensionToolResponse]:
     """
     Get available dimensions for specified metrics
 
@@ -111,52 +109,16 @@ def get_dimensions(metrics: list[str]):
         metrics: List of metric names or a single metric name
     """
     with semantic_layer_client.session():
-        return [DimensionToolResponse(d.name, d.type, d.description, d.label) for d in semantic_layer_client.dimensions(metrics)]
-
-
-@mcp.tool()
-def get_granularities(metrics):
-    """
-    Get available time granularities for the specified metrics
-
-    Args:
-        metrics: List of metric names or a single metric name
-    """
-    try:
-        # Ensure metrics is a list
-        if isinstance(metrics, str):
-            metrics = [metrics]
-
-        # Generate metric list string for GraphQL
-        metric_list = ", ".join([f"{{name: \"{metric}\"}}" for metric in metrics])
-
-        url = f"https://{CONFIG['host']}/api/graphql"
-        headers = {"Authorization": f"Bearer {CONFIG['token']}"}
-        query = f"""
-        {{
-          queryableGranularities(
-            environmentId: "{CONFIG['environment_id']}"
-            metrics: [{metric_list}]
-          )
-        }}
-        """
-
-        print(f"Executing GraphQL query: {query}")
-
-        response = requests.post(
-            url,
-            headers=headers,
-            json={"query": query}
-        )
-
-        data = response.json()
-
-        if "errors" in data:
-            return f"GraphQL error: {data['errors']}"
-
-        return json.dumps(data["data"]["queryableGranularities"], indent=2)
-    except Exception as e:
-        return f"Error getting granularities: {str(e)}"
+        return [
+            DimensionToolResponse(
+                name=d.name,
+                type=d.type,
+                description=d.description,
+                label=d.label,
+                granularities=d.queryable_time_granularities
+            )
+            for d in semantic_layer_client.dimensions(metrics=metrics)
+        ]
 
 @mcp.tool()
 def query_metrics(

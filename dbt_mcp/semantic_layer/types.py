@@ -12,6 +12,7 @@ class MetricToolResponse:
 @dataclass
 class DimensionToolResponse:
     name: str
-    dimension_type: DimensionType
+    type: DimensionType
     description: str | None = None
     label: str | None = None
+    granularities: list[str] | None = None

@@ -54,7 +54,7 @@ def auto_connect():
         print("  - DBT_ENV_ID: The dbt environment ID")
         print("  - DBT_TOKEN: The service token")
         return False
-        
+
     try:
         url = f"https://{CONFIG['host']}/api/graphql"
         headers = {"Authorization": f"Bearer {CONFIG['token']}"}
@@ -63,15 +63,15 @@ def auto_connect():
             dialect
           }}
         }}"""
-        
+
         print(f"Auto-connecting to semantic layer at {CONFIG['host']}...")
-        
+
         response = requests.post(
-            url, 
+            url,
             headers=headers,
             json={"query": query}
         )
-        
+
         data = response.json()
         if "errors" not in data:
             CONFIG["is_connected"] = True
@@ -89,58 +89,6 @@ if AUTO_CONNECT:
     auto_connect()
 
 @mcp.tool()
-def connect(host=None, environment_id=None, token=None):
-    """
-    Connect to the dbt Semantic Layer
-    
-    Args:
-        host: The host (e.g., semantic-layer.cloud.getdbt.com)
-        environment_id: The dbt environment ID
-        token: The service token
-    """
-    # Use provided values or fall back to environment variables
-    host = host or os.environ.get("DBT_HOST")
-    environment_id = environment_id or os.environ.get("DBT_ENV_ID")
-    token = token or os.environ.get("DBT_TOKEN")
-    
-    if not (host and environment_id and token):
-        return "Missing connection parameters. Please provide host, environment_id, and token."
-    
-    CONFIG["host"] = host
-    CONFIG["environment_id"] = environment_id
-    CONFIG["token"] = token
-    
-    # Test connection
-    try:
-        url = f"https://{host}/api/graphql"
-        headers = {"Authorization": f"Bearer {token}"}
-        query = f"""{{
-          environmentInfo(environmentId: "{environment_id}") {{
-            dialect
-          }}
-        }}"""
-        
-        print(f"Executing GraphQL query: {query}")
-        print(f"Using connection: {host}, {environment_id}, token: (hidden)")
-        
-        response = requests.post(
-            url, 
-            headers=headers,
-            json={"query": query}
-        )
-        
-        data = response.json()
-        if "errors" in data:
-            CONFIG["is_connected"] = False
-            return f"Failed to connect: {data['errors']}"
-        
-        CONFIG["is_connected"] = True
-        return f"Successfully connected to {host}"
-    except Exception as e:
-        CONFIG["is_connected"] = False
-        return f"Connection error: {str(e)}"
-
-@mcp.tool()
 def list_metrics():
     """
     List all metrics from the dbt Semantic Layer
@@ -151,7 +99,7 @@ def list_metrics():
             print("Auto-connected to the semantic layer")
         else:
             return "Not connected. Use connect() first."
-    
+
     try:
         url = f"https://{CONFIG['host']}/api/graphql"
         headers = {"Authorization": f"Bearer {CONFIG['token']}"}
@@ -162,20 +110,20 @@ def list_metrics():
             type
           }}
         }}"""
-        
+
         print(f"Executing GraphQL query: {query}")
-        
+
         response = requests.post(
-            url, 
+            url,
             headers=headers,
             json={"query": query}
         )
-        
+
         data = response.json()
-        
+
         if "errors" in data:
             return f"GraphQL error: {data['errors']}"
-        
+
         return json.dumps(data["data"]["metrics"], indent=2)
     except Exception as e:
         return f"Error listing metrics: {str(e)}"
@@ -184,7 +132,7 @@ def list_metrics():
 def get_dimensions(metrics):
     """
     Get available dimensions for specified metrics
-    
+
     Args:
         metrics: List of metric names or a single metric name
     """
@@ -194,15 +142,15 @@ def get_dimensions(metrics):
             print("Auto-connected to the semantic layer")
         else:
             return "Not connected. Use connect() first."
-    
+
     try:
         # Ensure metrics is a list
         if isinstance(metrics, str):
             metrics = [metrics]
-            
+
         # Generate metric list string for GraphQL
         metric_list = ", ".join([f"{{name: \"{metric}\"}}" for metric in metrics])
-        
+
         url = f"https://{CONFIG['host']}/api/graphql"
         headers = {"Authorization": f"Bearer {CONFIG['token']}"}
         query = f"""
@@ -221,20 +169,20 @@ def get_dimensions(metrics):
           }}
         }}
         """
-        
+
         print(f"Executing GraphQL query: {query}")
-        
+
         response = requests.post(
-            url, 
+            url,
             headers=headers,
             json={"query": query}
         )
-        
+
         data = response.json()
-        
+
         if "errors" in data:
             return f"GraphQL error: {data['errors']}"
-        
+
         return json.dumps(data["data"]["dimensions"], indent=2)
     except Exception as e:
         return f"Error getting dimensions: {str(e)}"
@@ -243,7 +191,7 @@ def get_dimensions(metrics):
 def get_granularities(metrics):
     """
     Get available time granularities for the specified metrics
-    
+
     Args:
         metrics: List of metric names or a single metric name
     """
@@ -253,15 +201,15 @@ def get_granularities(metrics):
             print("Auto-connected to the semantic layer")
         else:
             return "Not connected. Use connect() first."
-    
+
     try:
         # Ensure metrics is a list
         if isinstance(metrics, str):
             metrics = [metrics]
-            
+
         # Generate metric list string for GraphQL
         metric_list = ", ".join([f"{{name: \"{metric}\"}}" for metric in metrics])
-        
+
         url = f"https://{CONFIG['host']}/api/graphql"
         headers = {"Authorization": f"Bearer {CONFIG['token']}"}
         query = f"""
@@ -272,20 +220,20 @@ def get_granularities(metrics):
           )
         }}
         """
-        
+
         print(f"Executing GraphQL query: {query}")
-        
+
         response = requests.post(
-            url, 
+            url,
             headers=headers,
             json={"query": query}
         )
-        
+
         data = response.json()
-        
+
         if "errors" in data:
             return f"GraphQL error: {data['errors']}"
-        
+
         return json.dumps(data["data"]["queryableGranularities"], indent=2)
     except Exception as e:
         return f"Error getting granularities: {str(e)}"
@@ -294,7 +242,7 @@ def get_granularities(metrics):
 def query_metrics(metrics, group_by=None, time_grain=None, limit=None):
     """
     Query metrics with optional grouping and filtering
-    
+
     Args:
         metrics: List of metric names or a single metric name
         group_by: Optional list of dimensions to group by or a single dimension
@@ -307,19 +255,19 @@ def query_metrics(metrics, group_by=None, time_grain=None, limit=None):
             print("Auto-connected to the semantic layer")
         else:
             return "Not connected. Use connect() first."
-    
+
     try:
         # Ensure metrics is a list
         if isinstance(metrics, str):
             metrics = [metrics]
-            
+
         # Ensure group_by is a list if provided
         if group_by and isinstance(group_by, str):
             group_by = [group_by]
-        
+
         # Generate metric list string for GraphQL
         metric_list = ", ".join([f"{{name: \"{metric}\"}}" for metric in metrics])
-        
+
         # Build group_by section if needed
         group_by_section = ""
         if group_by:
@@ -330,10 +278,10 @@ def query_metrics(metrics, group_by=None, time_grain=None, limit=None):
                 else:
                     groups.append(f'{{name: "{dim}"}}')
             group_by_section = f"groupBy: [{', '.join(groups)}]"
-        
+
         # Build limit section if needed
         limit_section = f"limit: {limit}" if limit else ""
-        
+
         # Build create query mutation with direct string construction
         mutation = f"""
         mutation {{
@@ -347,12 +295,12 @@ def query_metrics(metrics, group_by=None, time_grain=None, limit=None):
           }}
         }}
         """
-        
+
         url = f"https://{CONFIG['host']}/api/graphql"
         headers = {"Authorization": f"Bearer {CONFIG['token']}"}
-        
+
         print(f"Executing GraphQL mutation: {mutation}")
-        
+
         # Execute create query mutation
         response = requests.post(
             url,
@@ -361,21 +309,21 @@ def query_metrics(metrics, group_by=None, time_grain=None, limit=None):
         )
         response.raise_for_status()
         create_data = response.json()
-        
+
         if "errors" in create_data:
             return f"GraphQL error: {create_data['errors']}"
-        
+
         # Get query ID
         query_id = create_data["data"]["createQuery"]["queryId"]
-        
+
         # Poll for results
         max_attempts = 30
         attempts = 0
         query_result = None
-        
+
         while attempts < max_attempts:
             attempts += 1
-            
+
             # Query for results
             result_query = f"""
             {{
@@ -386,9 +334,9 @@ def query_metrics(metrics, group_by=None, time_grain=None, limit=None):
               }}
             }}
             """
-            
+
             print(f"Polling with query: {result_query}")
-            
+
             response = requests.post(
                 url,
                 headers=headers,
@@ -396,24 +344,24 @@ def query_metrics(metrics, group_by=None, time_grain=None, limit=None):
             )
             response.raise_for_status()
             result_data = response.json()
-            
+
             if "errors" in result_data:
                 return f"GraphQL error: {result_data['errors']}"
-            
+
             query_result = result_data["data"]["query"]
-            
+
             # Check status
             if query_result["status"] == "FAILED":
                 return f"Query failed: {query_result['error']}"
             elif query_result["status"] == "SUCCESSFUL":
                 break
-            
+
             # Wait before polling again
             time.sleep(1)
-        
+
         if attempts >= max_attempts:
             return "Query timed out. Please try again or simplify your query."
-        
+
         # Parse and return results
         if query_result["jsonResult"]:
             # Return the raw JSON result
@@ -434,11 +382,11 @@ if __name__ == "__main__":
         for var in missing_vars:
             print(f"export {var}=<your-value>")
         print()
-    
+
     # Try to connect if auto-connect is enabled
     if AUTO_CONNECT and not CONFIG["is_connected"]:
         auto_connect()
-    
+
     # Show connection status
     if CONFIG["is_connected"]:
         print("\n✅ Ready to use! The semantic layer connection is active.")
@@ -446,5 +394,5 @@ if __name__ == "__main__":
     else:
         print("\n⚠️ Not connected to the semantic layer.")
         print("Make sure environment variables are set and use 'connect()' to establish a connection.\n")
-    
+
     mcp.run()

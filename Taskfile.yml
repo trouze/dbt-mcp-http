@@ -33,14 +33,14 @@ tasks:
   test:
     desc: "Run the tests"
     cmds:
-      - pytest tests
+      - uv run pytest tests
 
   test:integration:
     desc: "Run the integration tests"
     cmds:
-      - pytest tests/integration
+      - uv run pytest tests/integration
 
   test:unit:
     desc: "Run the unit tests"
     cmds:
-      - pytest tests/unit
+      - uv run pytest tests/unit

@@ -1,5 +1,5 @@
 import subprocess
-from config.config import Config
+from dbt_mcp.config.config import Config
 from mcp.server.fastmcp import FastMCP
 
 def register_dbt_cli_tools(dbt_mcp: FastMCP, config: Config) -> None:

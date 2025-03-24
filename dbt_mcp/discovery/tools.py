@@ -1,6 +1,6 @@
 from mcp.server.fastmcp import FastMCP
-from config.config import Config
-from discovery.client import MetadataAPIClient, ModelsFetcher
+from dbt_mcp.config.config import Config
+from dbt_mcp.discovery.client import MetadataAPIClient, ModelsFetcher
 
 def register_discovery_tools(dbt_mcp: FastMCP, config: Config) -> None:
     api_client = MetadataAPIClient(config.host, config.token)

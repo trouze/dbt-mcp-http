@@ -12,9 +12,11 @@ cd dbt-mcp-prototype
 
 2. [Install uv](https://docs.astral.sh/uv/getting-started/installation/)
 
-3. Run `uv sync`
+3. [Install Task](https://taskfile.dev/installation/)
 
-4. Configure environment variables:
+4. Run `task install`
+
+5. Configure environment variables:
 ```shell
 cp .env.example .env
 ```
@@ -46,16 +48,4 @@ Follow [these](https://modelcontextprotocol.io/quickstart/user) instructions to 
     }
   }
 }
-```
-
-### Local development
-
-- Run the development server:
-```shell
-mcp dev dbt_mcp/main.py --with "mcp[cli]" --with "requests>=2.31.0" --with "python-dotenv>=1.0.0"
-```
-
-- Run inspector:
-```shell
-npx @modelcontextprotocol/inspector mcp run dbt_mcp/main.py
 ```

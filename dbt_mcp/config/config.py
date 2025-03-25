@@ -12,8 +12,10 @@ class Config:
     dbt_cli_enabled: bool
     semantic_layer_enabled: bool
     discovery_enabled: bool
+    remote_enabled: bool
     dbt_command: str
     dbt_executable_type: str
+    remote_mcp_url: str
 
 def load_config() -> Config:
     load_dotenv()
@@ -27,6 +29,8 @@ def load_config() -> Config:
     disable_dbt_cli = os.environ.get("DISABLE_DBT_CLI", "false") == "true"
     disable_semantic_layer = os.environ.get("DISABLE_SEMANTIC_LAYER", "false") == "true"
     disable_discovery = os.environ.get("DISABLE_DISCOVERY", "false") == "true"
+    disable_remote = os.environ.get("DISABLE_REMOTE", "false") == "true"
+    remote_mcp_url = os.environ.get("REMOTE_MCP_URL", "http://localhost:8000/sse")
 
     errors = []
     if not disable_semantic_layer or not disable_discovery:
@@ -57,6 +61,8 @@ def load_config() -> Config:
         dbt_cli_enabled=not disable_dbt_cli,
         semantic_layer_enabled=not disable_semantic_layer,
         discovery_enabled=not disable_discovery,
+        remote_enabled=not disable_remote,
         dbt_command=dbt_path,
         dbt_executable_type=dbt_executable_type,
+        remote_mcp_url=remote_mcp_url,
     )

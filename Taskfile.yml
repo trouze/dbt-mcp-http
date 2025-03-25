@@ -18,7 +18,7 @@ tasks:
   run:
     desc: "Run the dbt-mcp server"
     cmds:
-      - ./.venv/bin/mcp run ./dbt_mcp/main.py
+      - uv run dbt_mcp/main.py
 
   dev:
     desc: "Run the dbt-mcp server in development mode"

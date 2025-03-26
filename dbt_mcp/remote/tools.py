@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 from typing import Any, AsyncGenerator
+import httpcore
 import httpx
 from mcp.server.fastmcp import FastMCP
 from mcp.client.sse import sse_client
@@ -20,7 +21,7 @@ from typing import (
 async def sse_mcp_connection_context(
     url: str,
     headers: dict[str, Any] | None = None,
-    timeout: float = 10,
+    timeout: float = 5,
     sse_read_timeout: float = 60 * 5,
 ) -> AsyncGenerator[ClientSession, None]:
     async with sse_client(url, headers, timeout, sse_read_timeout) as (read, write):
@@ -56,7 +57,7 @@ async def list_remote_tools(config: Config, headers: dict[str, Any]) -> list[Rem
     try:
         async with sse_mcp_connection_context(config.remote_mcp_url, headers) as session:
             result = (await session.list_tools()).tools
-    except* httpx.ConnectError as e:
+    except* (httpx.ConnectError, httpx.ReadTimeout, httpx.ConnectTimeout, httpcore.ConnectTimeout) as e:
         print(f"Connection error while listing remote tools: {e}")
     return result
 

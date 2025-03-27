@@ -38,7 +38,7 @@ def register_dbt_cli_tools(dbt_mcp: FastMCP, config: Config) -> None:
         """
         return _run_dbt_command(["docs", "generate"])
 
-    @dbt_mcp.tool()
+    @dbt_mcp.tool(name="list")
     def ls() -> str:
         """
         List the resources in the project

@@ -30,7 +30,7 @@ def load_config() -> Config:
     disable_semantic_layer = os.environ.get("DISABLE_SEMANTIC_LAYER", "false") == "true"
     disable_discovery = os.environ.get("DISABLE_DISCOVERY", "false") == "true"
     disable_remote = os.environ.get("DISABLE_REMOTE", "false") == "true"
-    remote_mcp_url = os.environ.get("REMOTE_MCP_URL", "http://localhost:8000/sse")
+    remote_mcp_url = os.environ.get("REMOTE_MCP_URL", "http://localhost:8000/mcp/sse")
 
     errors = []
     if not disable_semantic_layer or not disable_discovery:

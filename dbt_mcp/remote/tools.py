@@ -68,9 +68,14 @@ async def register_remote_tools(dbt_mcp: FastMCP, config: Config) -> None:
     }
     remote_tools = await list_remote_tools(config, headers)
     for tool in remote_tools:
-        async def new_tool(*args, **kwargs) -> list[TextContent | ImageContent | EmbeddedResource]:
-            async with sse_mcp_connection_context(config.remote_mcp_url, headers) as session:
-                return (await session.call_tool(name=tool.name, arguments=kwargs)).content
+        # Create a new function using a factory to avoid closure issues
+        def create_tool_function(tool_name: str):
+            async def tool_function(*args, **kwargs) -> list[TextContent | ImageContent | EmbeddedResource]:
+                async with sse_mcp_connection_context(config.remote_mcp_url, headers) as session:
+                    return (await session.call_tool(name=tool_name, arguments=kwargs)).content
+            return tool_function
+
+        new_tool = create_tool_function(tool.name)
         dbt_mcp._tool_manager._tools[tool.name] = Tool(
             fn=new_tool,
             name=tool.name,
@@ -78,9 +83,7 @@ async def register_remote_tools(dbt_mcp: FastMCP, config: Config) -> None:
             parameters=tool.inputSchema,
             fn_metadata=get_remote_tool_fn_metadata(tool),
             is_async=True,
-            # The `new_tool` function doesn't currently have a `ctx: Context` parameter, so this is None.
+            # `tool_function` doesn't currently have a `ctx: Context` parameter, so this is None.
             # See this: https://github.com/modelcontextprotocol/python-sdk/blob/9ae4df85fbab97bf476ddd160b766ca4c208cd13/README.md?plain=1#L283
             context_kwarg=None,
         )
-
-        dbt_mcp.add_tool(new_tool, name=tool.name, description=tool.description)

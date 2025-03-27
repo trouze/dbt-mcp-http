@@ -34,7 +34,7 @@ Then edit `.env` with your specific environment variables:
 
 ### Install in Claude Desktop
 
-Follow [these](https://modelcontextprotocol.io/quickstart/user) instructions to add the `dbt-mcp` `claude_desktop_config.json` configuration. After you have gone through the [Setup](#setup) instructions. It can look like this. Be sure to replace `<path-to-this-directory>`:
+Follow [these](https://modelcontextprotocol.io/quickstart/user) instructions to add the `dbt-mcp` `claude_desktop_config.json` configuration after you have gone through the [Setup](#setup) instructions. It can look like this. Be sure to replace `<path-to-this-directory>`:
 
 ```json
 {
@@ -49,3 +49,4 @@ Follow [these](https://modelcontextprotocol.io/quickstart/user) instructions to 
   }
 }
 ```
+If you encounter any problems. You can try running `task run` to see errors in your terminal or examining the Claude Desktop logs at `~/Library/Logs/Claude`.

@@ -6,8 +6,8 @@ A MCP (Model Context Protocol) server for interacting with dbt resources.
 
 1. Clone the repository:
 ```shell
-git clone https://github.com/dbt-labs/dbt-mcp-prototype.git
-cd dbt-mcp-prototype
+git clone https://github.com/dbt-labs/dbt-mcp.git
+cd dbt-mcp
 ```
 
 2. [Install uv](https://docs.astral.sh/uv/getting-started/installation/)

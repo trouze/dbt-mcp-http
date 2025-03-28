@@ -57,7 +57,7 @@ async def list_remote_tools(config: Config, headers: dict[str, Any]) -> list[Rem
     try:
         async with sse_mcp_connection_context(config.remote_mcp_url, headers) as session:
             result = (await session.list_tools()).tools
-    except* (httpx.ConnectError, httpx.ReadTimeout, httpx.ConnectTimeout, httpcore.ConnectTimeout) as e:
+    except* (httpx.ConnectError, httpx.ReadTimeout, httpx.ConnectTimeout, httpcore.ConnectTimeout, httpx.RemoteProtocolError) as e:
         print(f"Connection error while listing remote tools: {e}")
     return result
 

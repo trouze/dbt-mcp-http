@@ -1,15 +1,17 @@
+import time
 from contextlib import contextmanager
-from functools import cache, lru_cache
+from functools import cache
 from typing import Any, Generator, LiteralString, Protocol
 
+import requests
 from dbtsl import SemanticLayerClient
+from dbtsl.models.dimension import Dimension
+from dbtsl.models.metric import Metric
+
 from dbt_mcp.config.config import Config
 from dbt_mcp.semantic_layer.levenshtein import get_misspellings
 from dbt_mcp.semantic_layer.types import DimensionToolResponse, MetricToolResponse
-from dbtsl.models.dimension import Dimension
-from dbtsl.models.metric import Metric
-import time
-import requests
+
 
 class SemanticLayerClientProtocol(Protocol):
     @contextmanager
@@ -213,7 +215,10 @@ class SemanticLayerFetcher:
             return "No results returned."
 
 def get_semantic_layer_fetcher(config: Config) -> SemanticLayerFetcher:
-    host = f"semantic-layer.{config.host}"
+    if config.multicell_account_prefix:
+        host = f"{config.multicell_account_prefix}.semantic-layer.{config.host}"
+    else:
+        host = f"semantic-layer.{config.host}"
     semantic_layer_client = SemanticLayerClient(
         environment_id=config.environment_id,
         auth_token=config.token,

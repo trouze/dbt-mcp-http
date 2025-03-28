@@ -141,8 +141,11 @@ class GraphQLQueries:
     """)
 
 class MetadataAPIClient:
-    def __init__(self, host: str, token: str):
-        self.url = f'https://metadata.{host}/graphql'
+    def __init__(self, *, host: str, token: str, multicell_account_prefix: str | None):
+        if multicell_account_prefix:
+            self.url = f'https://{multicell_account_prefix}.metadata.{host}/graphql'
+        else:
+            self.url = f'https://metadata.{host}/graphql'
         self.headers = {
             'Authorization': f'Bearer {token}',
             'Content-Type': 'application/json',
@@ -210,7 +213,10 @@ class ModelsFetcher:
             "first": 1
         }
         result = self.api_client.execute_query(GraphQLQueries.GET_MODEL_DETAILS, variables)
-        return result["data"]["environment"]["applied"]["models"]["edges"][0]["node"]
+        edges = result["data"]["environment"]["applied"]["models"]["edges"]
+        if not edges:
+            return {}
+        return edges[0]["node"]
 
     def fetch_model_parents(self, model_name: str) -> list[dict]:
         variables = {
@@ -219,4 +225,7 @@ class ModelsFetcher:
             "first": 1
         }
         result = self.api_client.execute_query(GraphQLQueries.GET_MODEL_PARENTS, variables)
-        return result["data"]["environment"]["applied"]["models"]["edges"][0]["node"]["parents"]
+        edges = result["data"]["environment"]["applied"]["models"]["edges"]
+        if not edges:
+            return []
+        return edges[0]["node"]["parents"]

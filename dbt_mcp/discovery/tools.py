@@ -3,8 +3,10 @@ from dbt_mcp.config.config import Config
 from dbt_mcp.discovery.client import MetadataAPIClient, ModelsFetcher
 
 def register_discovery_tools(dbt_mcp: FastMCP, config: Config) -> None:
-    api_client = MetadataAPIClient(config.host, config.token)
-    models_fetcher = ModelsFetcher(api_client, config.environment_id)
+    if not config.host or not config.token or not config.environment_id:
+        raise ValueError("Host, token, and environment ID are required to use discovery tools. To disable discovery tools, set DISABLE_DISCOVERY=true in your environment.")
+    api_client = MetadataAPIClient(host=config.host, token=config.token, multicell_account_prefix=config.multicell_account_prefix)
+    models_fetcher = ModelsFetcher(api_client=api_client, environment_id=config.environment_id)
 
     @dbt_mcp.tool()
     def get_mart_models() -> list[dict]:

@@ -16,6 +16,7 @@ class Config:
     dbt_command: str
     dbt_executable_type: str
     remote_mcp_url: str
+    multicell_account_prefix: str | None
 
 def load_config() -> Config:
     load_dotenv()
@@ -31,6 +32,7 @@ def load_config() -> Config:
     disable_discovery = os.environ.get("DISABLE_DISCOVERY", "false") == "true"
     disable_remote = os.environ.get("DISABLE_REMOTE", "false") == "true"
     remote_mcp_url = os.environ.get("REMOTE_MCP_URL", "http://localhost:8000/mcp/sse")
+    multicell_account_prefix = os.environ.get("MULTICELL_ACCOUNT_PREFIX", None)
 
     errors = []
     if not disable_semantic_layer or not disable_discovery:
@@ -65,4 +67,5 @@ def load_config() -> Config:
         dbt_command=dbt_path,
         dbt_executable_type=dbt_executable_type,
         remote_mcp_url=remote_mcp_url,
+        multicell_account_prefix=multicell_account_prefix,
     )

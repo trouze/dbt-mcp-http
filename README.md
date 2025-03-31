@@ -33,9 +33,11 @@ Then edit `.env` with your specific environment variables:
 - `DBT_EXECUTABLE_TYPE`: Set this to `core` if the `DBT_PATH` environment variable points toward dbt Core. Otherwise, dbt Cloud CLI is assumed
 
 
-### Install in Claude Desktop
+## Using with MCP Clients
 
-Follow [these](https://modelcontextprotocol.io/quickstart/user) instructions to add the `dbt-mcp` `claude_desktop_config.json` configuration after you have gone through the [Setup](#setup) instructions. It can look like this. Be sure to replace `<path-to-this-directory>`:
+After going through [Setup](#setup), you can use your server with an MCP client. 
+
+This configuration will be added to the respective client's config file:
 
 ```json
 {
@@ -50,4 +52,23 @@ Follow [these](https://modelcontextprotocol.io/quickstart/user) instructions to 
   }
 }
 ```
-If you encounter any problems. You can try running `task run` to see errors in your terminal or examining the Claude Desktop logs at `~/Library/Logs/Claude`.
+Be sure to replace `<path-to-this-directory>`
+
+If you encounter any problems. You can try running `task run` to see errors in your terminal
+
+
+### Claude Desktop
+
+Follow [these](https://modelcontextprotocol.io/quickstart/user) instructions to create the `claude_desktop_config.json` file and connect.
+
+You can find the Claude Desktop logs at `~/Library/Logs/Claude`.
+
+
+### Cursor
+
+1. Open up the Cursor menu and select Settings → Cursor Settings → MCP
+2. Click "Add new global MCP server"
+3. Add the config from above to the provided `mcp.json` file
+4. Verify your connection is active within the MCP tab
+
+Cursor MCP docs [here](https://docs.cursor.com/context/model-context-protocol) for reference

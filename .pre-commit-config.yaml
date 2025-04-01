@@ -1,7 +1,6 @@
 exclude: |
   (?x)^(
       .mypy_cache/
-      | .devspace/
       | .pytest_cache/
       | .venv/
   )$

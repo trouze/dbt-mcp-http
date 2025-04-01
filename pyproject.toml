@@ -7,9 +7,16 @@ requires-python = ">=3.12"
 dependencies = [
   "dbt-sl-sdk[sync]>=0.8.0",
   # We are using some internal functions, so pinning this dependency.
-  "mcp[cli]==1.5.0",
+  "mcp[cli]==1.6.0",
   "pytest>=8.3.5",
   "pytest-asyncio>=0.25.3",
   "python-dotenv>=1.0.1",
   "requests>=2.32.3",
+]
+[dependency-groups]
+dev = [
+  "ruff>=0.11.2",
+  "types-requests>=2.32.0.20250328",
+  "mypy>=1.12.1",
+  "pre-commit>=4.2.0",
 ]

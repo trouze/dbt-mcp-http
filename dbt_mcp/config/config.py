@@ -18,6 +18,7 @@ class Config:
     remote_mcp_url: str
     multicell_account_prefix: str | None
 
+
 def load_config() -> Config:
     load_dotenv()
 
@@ -37,20 +38,34 @@ def load_config() -> Config:
     errors = []
     if not disable_semantic_layer or not disable_discovery:
         if not host:
-            errors.append("DBT_HOST environment variable is required when semantic layer or discovery is enabled.")
+            errors.append(
+                "DBT_HOST environment variable is required when semantic layer or discovery is enabled."
+            )
         if not environment_id:
-            errors.append("DBT_ENV_ID environment variable is required when semantic layer or discovery is enabled.")
+            errors.append(
+                "DBT_ENV_ID environment variable is required when semantic layer or discovery is enabled."
+            )
         if not token:
-            errors.append("DBT_TOKEN environment variable is required when semantic layer or discovery is enabled.")
+            errors.append(
+                "DBT_TOKEN environment variable is required when semantic layer or discovery is enabled."
+            )
         if host and (host.startswith("metadata") or host.startswith("semantic-layer")):
-            errors.append("DBT_HOST must not start with 'metadata' or 'semantic-layer'.")
+            errors.append(
+                "DBT_HOST must not start with 'metadata' or 'semantic-layer'."
+            )
     if not disable_dbt_cli:
         if not project_dir:
-            errors.append("DBT_PROJECT_DIR environment variable is required when dbt CLI MCP is enabled.")
+            errors.append(
+                "DBT_PROJECT_DIR environment variable is required when dbt CLI MCP is enabled."
+            )
         if not dbt_path:
-            errors.append("DBT_PATH environment variable is required when dbt CLI MCP is enabled.")
+            errors.append(
+                "DBT_PATH environment variable is required when dbt CLI MCP is enabled."
+            )
         if dbt_executable_type not in ["core", "cloud"]:
-            errors.append("DBT_EXECUTABLE_TYPE environment variable must be either 'core' or 'cloud' when dbt CLI MCP is enabled.")
+            errors.append(
+                "DBT_EXECUTABLE_TYPE environment variable must be either 'core' or 'cloud' when dbt CLI MCP is enabled."
+            )
 
     if errors:
         raise ValueError("Errors found in configuration:\n\n" + "\n".join(errors))

@@ -2,6 +2,26 @@
 
 version: '3'
 
+# Environment Variables will be set with the following precedence (from high to low):
+# .env.local.<env>
+#     Local environment variables that are specific to an environment have the highest priority.
+#     For example, to test a staging environment, put any staging-specific variables in
+#     .env.local.stg. These variables will be set first and will not be overridden by
+#     variables set in other .env files. A common use case for this is to set specific
+#     variables used for testing personal staging sites in a provider/consumer configuration.
+#
+# .env
+#     Local environment variables that should be common across all environments when doing local
+#     development. In the most common case, this will have the full 'dev' configuration.
+#
+#  envs/.env.<env>
+#     Default environment variables for each of the dev, stg and prod environments. If an
+#     environment variable is not set in any of the local .env files, the default value from this
+#     file will be used. These default values are the non-secret values that will be used for
+#     configuration of the shared stg and prod apps managed through CI/CD.
+
+dotenv: [".env.local.{{.ENV}}", ".env", "envs/.env.{{.ENV}}"]
+
 tasks:
   default:
     desc: "List tasks"
@@ -14,6 +34,21 @@ tasks:
     cmds:
       - uv sync
       - uv pip install -e .
+
+  install-pre-commit:
+    desc: Install pre-commit hooks
+    cmds:
+      - uv run pre-commit install
+
+  check:
+    desc: Run linting and type checking
+    cmds:
+      - uv run pre-commit run --all-files
+
+  fmt:
+    desc: Format code
+    cmds:
+      - uv run pre-commit run ruff --all-files
 
   run:
     desc: "Run the dbt-mcp server"

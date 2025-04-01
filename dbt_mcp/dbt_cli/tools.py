@@ -2,8 +2,8 @@ import subprocess
 from dbt_mcp.config.config import Config
 from mcp.server.fastmcp import FastMCP
 
-def register_dbt_cli_tools(dbt_mcp: FastMCP, config: Config) -> None:
 
+def register_dbt_cli_tools(dbt_mcp: FastMCP, config: Config) -> None:
     def _run_dbt_command(command: list[str]) -> str:
         result = subprocess.run(
             args=[config.dbt_command, *command],
@@ -12,7 +12,7 @@ def register_dbt_cli_tools(dbt_mcp: FastMCP, config: Config) -> None:
             text=True,
         )
         # Cloud CLI reports errors to stderr, Core CLI reports errors to stdout
-        if config.dbt_executable_type == "cloud" and  result.returncode != 0:
+        if config.dbt_executable_type == "cloud" and result.returncode != 0:
             return result.stderr
         else:
             return result.stdout

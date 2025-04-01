@@ -5,25 +5,40 @@ on:
     types: [opened, reopened, synchronize, labeled]
 
 jobs:
+  # checks the code for styling and type errors
   check:
-    name: Run tests
+    name: Check styling
     runs-on: ubuntu-24.04
     steps:
       - name: checkout code
         uses: actions/checkout@v4
-      - name: Setup python
+      - name: setup python
+        uses: ./.github/actions/setup-python
         id: setup-python
-        uses: actions/setup-python@v5
         with:
-          python-version: 3.12
-      - name: Setup uv
-        uses: astral-sh/setup-uv@v4
-        with:
-          enable-cache: true
-          cache-dependency-glob: "uv.lock"
+          python-version: ${{ env.PYTHON_VERSION }}
+          ssh-private-key: ${{ secrets.FA_ASSISTANT_SSH_KEY }}
       - name: Install go-task
         run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
-      - name: Install dependencies
-        run: task install
+      - name: Run check
+        run: task check
+
+  # runs the unit tests
+  unit-test:
+    name: Unit test
+    runs-on: ubuntu-24.04
+    needs:
+      - check
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+      - name: setup python
+        uses: ./.github/actions/setup-python
+        id: setup-python
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          ssh-private-key: ${{ secrets.FA_ASSISTANT_SSH_KEY }}
+      - name: Install go-task
+        run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
       - name: Run tests
         run: task test:unit

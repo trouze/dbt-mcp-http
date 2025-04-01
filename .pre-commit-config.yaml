@@ -1,0 +1,34 @@
+exclude: |
+  (?x)^(
+      .mypy_cache/
+      | .devspace/
+      | .pytest_cache/
+      | .venv/
+  )$
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: pretty-format-json
+        args: ["--autofix"]
+      - id: check-merge-conflict
+      - id: no-commit-to-branch
+        args: [--branch, main]
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.3
+    hooks:
+      - id: actionlint
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.9.5
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.13.0
+    hooks:
+      - id: mypy
+        language: system
+        pass_filenames: false
+        args: ["--show-error-codes", "--namespace-packages", "."]

@@ -1,0 +1,33 @@
+name: Setup Python
+description: Setup Python for ai-codegen-api
+inputs:
+  python-version:
+    description: Python version to use when executing tests and generating code coverage report
+    required: true
+  ssh-private-key:
+    description: Private Key required for installing private packages
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup python
+      id: setup-python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: setup ssh
+      uses: dbt-labs/internal-actions/private-repo-ssh-setup@v1
+      with:
+        ssh-private-key: ${{ inputs.ssh-private-key }}
+
+    - name: Setup uv
+      uses: astral-sh/setup-uv@v4
+      with:
+        enable-cache: true
+        cache-dependency-glob: "uv.lock"
+
+    - name: Install the project
+      shell: bash
+      run: uv sync

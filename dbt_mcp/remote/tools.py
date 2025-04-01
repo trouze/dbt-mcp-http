@@ -10,12 +10,16 @@ from pydantic_core import PydanticUndefined
 from dbt_mcp.config.config import Config
 from mcp.types import Tool as RemoteTool, TextContent, ImageContent, EmbeddedResource
 from mcp.server.fastmcp.tools.base import Tool
-from mcp.server.fastmcp.utilities.func_metadata import FuncMetadata, ArgModelBase, _get_typed_annotation
+from mcp.server.fastmcp.utilities.func_metadata import (
+    FuncMetadata,
+    ArgModelBase,
+    _get_typed_annotation,
+)
 from pydantic.fields import FieldInfo
 from typing import (
     Annotated,
-    Any,
 )
+
 
 @asynccontextmanager
 async def sse_mcp_connection_context(
@@ -28,6 +32,7 @@ async def sse_mcp_connection_context(
         async with ClientSession(read, write) as session:
             await session.initialize()
             yield session
+
 
 # Based on this: https://github.com/modelcontextprotocol/python-sdk/blob/9ae4df85fbab97bf476ddd160b766ca4c208cd13/src/mcp/server/fastmcp/utilities/func_metadata.py#L105
 def get_remote_tool_fn_metadata(tool: RemoteTool) -> FuncMetadata:
@@ -46,20 +51,34 @@ def get_remote_tool_fn_metadata(tool: RemoteTool) -> FuncMetadata:
             default=PydanticUndefined,
         )
         dynamic_pydantic_model_params[key] = (field_info.annotation, None)
-    return FuncMetadata(arg_model=create_model(
-        f"{tool.name}Arguments",
-        **dynamic_pydantic_model_params,
-        __base__=ArgModelBase,
-    ))
+    return FuncMetadata(
+        arg_model=create_model(
+            f"{tool.name}Arguments",
+            **dynamic_pydantic_model_params,
+            __base__=ArgModelBase,
+        )
+    )
 
-async def list_remote_tools(config: Config, headers: dict[str, Any]) -> list[RemoteTool]:
+
+async def list_remote_tools(
+    config: Config, headers: dict[str, Any]
+) -> list[RemoteTool]:
     result: list[RemoteTool] = []
     try:
-        async with sse_mcp_connection_context(config.remote_mcp_url, headers) as session:
+        async with sse_mcp_connection_context(
+            config.remote_mcp_url, headers
+        ) as session:
             result = (await session.list_tools()).tools
-    except* (httpx.ConnectError, httpx.ReadTimeout, httpx.ConnectTimeout, httpcore.ConnectTimeout, httpx.RemoteProtocolError) as e:
+    except* (
+        httpx.ConnectError,
+        httpx.ReadTimeout,
+        httpx.ConnectTimeout,
+        httpcore.ConnectTimeout,
+        httpx.RemoteProtocolError,
+    ) as e:
         print(f"Connection error while listing remote tools: {e}")
     return result
+
 
 async def register_remote_tools(dbt_mcp: FastMCP, config: Config) -> None:
     headers = {
@@ -70,9 +89,16 @@ async def register_remote_tools(dbt_mcp: FastMCP, config: Config) -> None:
     for tool in remote_tools:
         # Create a new function using a factory to avoid closure issues
         def create_tool_function(tool_name: str):
-            async def tool_function(*args, **kwargs) -> list[TextContent | ImageContent | EmbeddedResource]:
-                async with sse_mcp_connection_context(config.remote_mcp_url, headers) as session:
-                    return (await session.call_tool(name=tool_name, arguments=kwargs)).content
+            async def tool_function(
+                *args, **kwargs
+            ) -> list[TextContent | ImageContent | EmbeddedResource]:
+                async with sse_mcp_connection_context(
+                    config.remote_mcp_url, headers
+                ) as session:
+                    return (
+                        await session.call_tool(name=tool_name, arguments=kwargs)
+                    ).content
+
             return tool_function
 
         new_tool = create_tool_function(tool.name)

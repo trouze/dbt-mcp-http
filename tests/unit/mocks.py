@@ -1,6 +1,8 @@
 from dbtsl.models.dimension import Dimension
 from dbtsl.models.metric import Metric
 from contextlib import contextmanager
+from dbtsl import SemanticLayerClient
+
 
 class MockSession:
     def __enter__(self):
@@ -9,7 +11,8 @@ class MockSession:
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
 
-class MockSemanticLayerClient:
+
+class MockSemanticLayerClient(SemanticLayerClient):
     def __init__(self, metrics: list[Metric] = [], dimensions: list[Dimension] = []):
         self.mocked_metrics = metrics
         self.mocked_dimensions = dimensions

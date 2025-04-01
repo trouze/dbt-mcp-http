@@ -1,35 +1,20 @@
 import time
-from contextlib import contextmanager
 from functools import cache
-from typing import Any, Generator, LiteralString, Protocol
 
 import requests
 from dbtsl import SemanticLayerClient
-from dbtsl.models.dimension import Dimension
-from dbtsl.models.metric import Metric
 
 from dbt_mcp.config.config import Config
 from dbt_mcp.semantic_layer.levenshtein import get_misspellings
 from dbt_mcp.semantic_layer.types import DimensionToolResponse, MetricToolResponse
 
 
-class SemanticLayerClientProtocol(Protocol):
-    @contextmanager
-    def session(self) -> Generator[Any, Any, None]:
-        ...
-
-    def metrics(self) -> list[Metric]:
-        ...
-
-    def dimensions(self, metrics: list[str]) -> list[Dimension]:
-        ...
-
 class SemanticLayerFetcher:
-    def __init__(self, sl_client: SemanticLayerClientProtocol, host: str, config: Config):
+    def __init__(self, sl_client: SemanticLayerClient, host: str, config: Config):
         self.sl_client = sl_client
         self.host = host
         self.config = config
-        self.dimensions_cache = {}
+        self.dimensions_cache: dict[str, list[DimensionToolResponse]] = {}
 
     @cache
     def list_metrics(self) -> list[MetricToolResponse]:
@@ -54,17 +39,15 @@ class SemanticLayerFetcher:
                         type=d.type,
                         description=d.description,
                         label=d.label,
-                        granularities=d.queryable_time_granularities
+                        granularities=d.queryable_time_granularities,
                     )
                     for d in self.sl_client.dimensions(metrics=metrics)
                 ]
         return self.dimensions_cache[metrics_key]
 
     def validate_query_metrics_params(
-        self,
-        metrics: list[str],
-        group_by: list[str] | None
-    ) -> LiteralString | None:
+        self, metrics: list[str], group_by: list[str] | None
+    ) -> str | None:
         errors = []
         available_metrics_names = [m.name for m in self.list_metrics()]
         metric_misspellings = get_misspellings(
@@ -73,9 +56,13 @@ class SemanticLayerFetcher:
             top_k=5,
         )
         for metric_misspelling in metric_misspellings:
-            recommendations = " Did you mean: " + ", ".join(metric_misspelling.similar_words) + "?"
+            recommendations = (
+                " Did you mean: " + ", ".join(metric_misspelling.similar_words) + "?"
+            )
             errors.append(
-                f"Metric {metric_misspelling.word} not found." + recommendations if metric_misspelling.similar_words else ""
+                f"Metric {metric_misspelling.word} not found." + recommendations
+                if metric_misspelling.similar_words
+                else ""
             )
 
         if errors:
@@ -88,20 +75,25 @@ class SemanticLayerFetcher:
             top_k=5,
         )
         for dimension_misspelling in dimension_misspellings:
-            recommendations = " Did you mean: " + ", ".join(dimension_misspelling.similar_words) + "?"
+            recommendations = (
+                " Did you mean: " + ", ".join(dimension_misspelling.similar_words) + "?"
+            )
             errors.append(
-                f"Dimension {dimension_misspelling.word} not found." + recommendations if dimension_misspelling.similar_words else ""
+                f"Dimension {dimension_misspelling.word} not found." + recommendations
+                if dimension_misspelling.similar_words
+                else ""
             )
 
         if errors:
             return "Errors: " + ", ".join(errors)
+        return None
 
     def query_metrics(
         self,
         metrics: list[str],
         group_by: list[str] | None = None,
         time_grain: str | None = None,
-        limit: int | None = None
+        limit: int | None = None,
     ):
         error_message = self.validate_query_metrics_params(
             metrics=metrics,
@@ -111,7 +103,7 @@ class SemanticLayerFetcher:
             return error_message
 
         # Generate metric list string for GraphQL
-        metric_list = ", ".join([f"{{name: \"{metric}\"}}" for metric in metrics])
+        metric_list = ", ".join([f'{{name: "{metric}"}}' for metric in metrics])
 
         # Build group_by section if needed
         group_by_section = ""
@@ -147,11 +139,7 @@ class SemanticLayerFetcher:
         print(f"Executing GraphQL mutation: {mutation}")
 
         # Execute create query mutation
-        response = requests.post(
-            url,
-            headers=headers,
-            json={"query": mutation}
-        )
+        response = requests.post(url, headers=headers, json={"query": mutation})
         response.raise_for_status()
         create_data = response.json()
 
@@ -182,11 +170,7 @@ class SemanticLayerFetcher:
 
             print(f"Polling with query: {result_query}")
 
-            response = requests.post(
-                url,
-                headers=headers,
-                json={"query": result_query}
-            )
+            response = requests.post(url, headers=headers, json={"query": result_query})
             response.raise_for_status()
             result_data = response.json()
 
@@ -208,17 +192,23 @@ class SemanticLayerFetcher:
             return "Query timed out. Please try again or simplify your query."
 
         # Parse and return results
-        if query_result["jsonResult"]:
+        if query_result and query_result.get("jsonResult"):
             # Return the raw JSON result
             return query_result["jsonResult"]
         else:
             return "No results returned."
+
 
 def get_semantic_layer_fetcher(config: Config) -> SemanticLayerFetcher:
     if config.multicell_account_prefix:
         host = f"{config.multicell_account_prefix}.semantic-layer.{config.host}"
     else:
         host = f"semantic-layer.{config.host}"
+    if config.environment_id is None:
+        raise ValueError("Environment ID is required")
+    if config.token is None:
+        raise ValueError("Token is required")
+
     semantic_layer_client = SemanticLayerClient(
         environment_id=config.environment_id,
         auth_token=config.token,

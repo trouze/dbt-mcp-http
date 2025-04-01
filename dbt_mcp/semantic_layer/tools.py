@@ -1,12 +1,15 @@
 from dbt_mcp.config.config import Config
-from dbt_mcp.semantic_layer.client import  get_semantic_layer_fetcher
+from dbt_mcp.semantic_layer.client import get_semantic_layer_fetcher
 from dbt_mcp.semantic_layer.types import MetricToolResponse
 from mcp.server.fastmcp import FastMCP
-from dbt_mcp.semantic_layer.types import DimensionToolResponse, MetricToolResponse
+from dbt_mcp.semantic_layer.types import DimensionToolResponse
+
 
 def register_sl_tools(dbt_mcp: FastMCP, config: Config) -> None:
     if not config.host or not config.token or not config.environment_id:
-        raise ValueError("Host, token, and environment ID are required to use semantic layer tools. To disable semantic layer tools, set DISABLE_SEMANTIC_LAYER=true in your environment.")
+        raise ValueError(
+            "Host, token, and environment ID are required to use semantic layer tools. To disable semantic layer tools, set DISABLE_SEMANTIC_LAYER=true in your environment."
+        )
     semantic_layer_fetcher = get_semantic_layer_fetcher(config)
 
     @dbt_mcp.tool()
@@ -31,7 +34,7 @@ def register_sl_tools(dbt_mcp: FastMCP, config: Config) -> None:
         metrics: list[str],
         group_by: list[str] | None = None,
         time_grain: str | None = None,
-        limit: int | None = None
+        limit: int | None = None,
     ):
         """
         Query metrics with optional grouping and filtering

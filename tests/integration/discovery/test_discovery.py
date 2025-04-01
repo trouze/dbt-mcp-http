@@ -2,6 +2,7 @@ import os
 import pytest
 from dbt_mcp.discovery.client import MetadataAPIClient, ModelFilter, ModelsFetcher
 
+
 @pytest.fixture
 def api_client() -> MetadataAPIClient:
     host = os.getenv("DBT_HOST")
@@ -11,6 +12,7 @@ def api_client() -> MetadataAPIClient:
         raise ValueError("DBT_HOST and DBT_TOKEN environment variables are required")
     return MetadataAPIClient(host=host, token=token)
 
+
 @pytest.fixture
 def models_fetcher(api_client: MetadataAPIClient) -> ModelsFetcher:
     environment_id = os.getenv("DBT_ENV_ID")
@@ -18,6 +20,7 @@ def models_fetcher(api_client: MetadataAPIClient) -> ModelsFetcher:
         raise ValueError("DBT_ENV_ID environment variable is required")
 
     return ModelsFetcher(api_client=api_client, environment_id=int(environment_id))
+
 
 def test_fetch_models(models_fetcher: ModelsFetcher):
     results = models_fetcher.fetch_models()
@@ -40,6 +43,7 @@ def test_fetch_models(models_fetcher: ModelsFetcher):
                     assert "name" in column
                     assert "type" in column
 
+
 def test_fetch_models_with_filter(models_fetcher: ModelsFetcher):
     # model_filter: ModelFilter = {"access": "protected"}
     model_filter: ModelFilter = {"modelingLayer": "marts"}
@@ -50,6 +54,7 @@ def test_fetch_models_with_filter(models_fetcher: ModelsFetcher):
     # Validate filtered results
     assert len(filtered_results) > 0
 
+
 def test_fetch_model_details(models_fetcher: ModelsFetcher):
     models = models_fetcher.fetch_models()
     model_name = models[0]["name"]
@@ -59,6 +64,7 @@ def test_fetch_model_details(models_fetcher: ModelsFetcher):
 
     # Validate filtered results
     assert len(filtered_results) > 0
+
 
 def test_fetch_model_parents(models_fetcher: ModelsFetcher):
     models = models_fetcher.fetch_models()

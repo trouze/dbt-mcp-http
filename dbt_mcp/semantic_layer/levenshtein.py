@@ -1,4 +1,3 @@
-
 from dataclasses import dataclass
 
 
@@ -6,6 +5,7 @@ from dataclasses import dataclass
 class Misspelling:
     word: str
     similar_words: list[str]
+
 
 def levenshtein(s1: str, s2: str) -> int:
     len_s1, len_s2 = len(s1), len(s2)
@@ -20,17 +20,18 @@ def levenshtein(s1: str, s2: str) -> int:
         for j in range(1, len_s2 + 1):
             cost = 0 if s1[i - 1] == s2[j - 1] else 1
             dp[i][j] = min(
-                dp[i - 1][j] + 1,   # Deletion
-                dp[i][j - 1] + 1,   # Insertion
-                dp[i - 1][j - 1] + cost  # Substitution
+                dp[i - 1][j] + 1,  # Deletion
+                dp[i][j - 1] + 1,  # Insertion
+                dp[i - 1][j - 1] + cost,  # Substitution
             )
     return dp[len_s1][len_s2]
+
 
 def get_closest_words(
     target: str,
     words: list[str],
     top_k: int | None = None,
-    threshold: int | None = None
+    threshold: int | None = None,
 ) -> list[str]:
     distances = [(word, levenshtein(target, word)) for word in words]
 
@@ -47,6 +48,7 @@ def get_closest_words(
 
     return [word for word, _ in distances]
 
+
 def get_misspellings(
     targets: list[str],
     words: list[str],
@@ -55,13 +57,15 @@ def get_misspellings(
     misspellings = []
     for target in targets:
         if target not in words:
-            misspellings.append(Misspelling(
-                word=target,
-                similar_words=get_closest_words(
-                    target=target,
-                    words=words,
-                    top_k=top_k,
-                    threshold=max(1, len(target) // 2)
+            misspellings.append(
+                Misspelling(
+                    word=target,
+                    similar_words=get_closest_words(
+                        target=target,
+                        words=words,
+                        top_k=top_k,
+                        threshold=max(1, len(target) // 2),
+                    ),
                 )
-            ))
+            )
     return misspellings

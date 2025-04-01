@@ -5,6 +5,7 @@ import requests
 PAGE_SIZE = 100
 MAX_NUM_MODELS = 1000
 
+
 class GraphQLQueries:
     GET_MODELS = textwrap.dedent("""
         query GetModels(
@@ -140,27 +141,32 @@ class GraphQLQueries:
         }
     """)
 
+
 class MetadataAPIClient:
-    def __init__(self, *, host: str, token: str, multicell_account_prefix: str | None):
+    def __init__(
+        self, *, host: str, token: str, multicell_account_prefix: str | None = None
+    ):
         if multicell_account_prefix:
-            self.url = f'https://{multicell_account_prefix}.metadata.{host}/graphql'
+            self.url = f"https://{multicell_account_prefix}.metadata.{host}/graphql"
         else:
-            self.url = f'https://metadata.{host}/graphql'
+            self.url = f"https://metadata.{host}/graphql"
         self.headers = {
-            'Authorization': f'Bearer {token}',
-            'Content-Type': 'application/json',
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
         }
 
     def execute_query(self, query: str, variables: dict) -> dict:
         response = requests.post(
             url=self.url,
             json={"query": query, "variables": variables},
-            headers=self.headers
+            headers=self.headers,
         )
         return response.json()
 
+
 class ModelFilter(TypedDict, total=False):
     modelingLayer: Optional[Literal["marts"]]
+
 
 class ModelsFetcher:
     def __init__(self, api_client: MetadataAPIClient, environment_id: int):
@@ -193,14 +199,16 @@ class ModelsFetcher:
                 "after": after_cursor,
                 "first": PAGE_SIZE,
                 "modelsFilter": model_filter or {},
-                "sort": {"field": "queryUsageCount", "direction": "desc"}
+                "sort": {"field": "queryUsageCount", "direction": "desc"},
             }
 
             result = self.api_client.execute_query(GraphQLQueries.GET_MODELS, variables)
             all_edges.extend(self._parse_response_to_json(result))
 
             previous_after_cursor = after_cursor
-            after_cursor = result['data']['environment']['applied']['models']['pageInfo']['endCursor']
+            after_cursor = result["data"]["environment"]["applied"]["models"][
+                "pageInfo"
+            ]["endCursor"]
             if previous_after_cursor == after_cursor:
                 has_next_page = False
 
@@ -210,9 +218,11 @@ class ModelsFetcher:
         variables = {
             "environmentId": self.environment_id,
             "modelsFilter": {"identifier": model_name},
-            "first": 1
+            "first": 1,
         }
-        result = self.api_client.execute_query(GraphQLQueries.GET_MODEL_DETAILS, variables)
+        result = self.api_client.execute_query(
+            GraphQLQueries.GET_MODEL_DETAILS, variables
+        )
         edges = result["data"]["environment"]["applied"]["models"]["edges"]
         if not edges:
             return {}
@@ -222,9 +232,11 @@ class ModelsFetcher:
         variables = {
             "environmentId": self.environment_id,
             "modelsFilter": {"identifier": model_name},
-            "first": 1
+            "first": 1,
         }
-        result = self.api_client.execute_query(GraphQLQueries.GET_MODEL_PARENTS, variables)
+        result = self.api_client.execute_query(
+            GraphQLQueries.GET_MODEL_PARENTS, variables
+        )
         edges = result["data"]["environment"]["applied"]["models"]["edges"]
         if not edges:
             return []

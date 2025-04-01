@@ -6,7 +6,11 @@ from dbtsl import SemanticLayerClient
 
 from dbt_mcp.config.config import Config
 from dbt_mcp.semantic_layer.levenshtein import get_misspellings
-from dbt_mcp.semantic_layer.types import DimensionToolResponse, MetricToolResponse
+from dbt_mcp.semantic_layer.types import (
+    DimensionToolResponse,
+    EntityToolResponse,
+    MetricToolResponse,
+)
 
 
 class SemanticLayerFetcher:
@@ -14,6 +18,7 @@ class SemanticLayerFetcher:
         self.sl_client = sl_client
         self.host = host
         self.config = config
+        self.entities_cache: dict[str, list[EntityToolResponse]] = {}
         self.dimensions_cache: dict[str, list[DimensionToolResponse]] = {}
 
     @cache
@@ -44,6 +49,20 @@ class SemanticLayerFetcher:
                     for d in self.sl_client.dimensions(metrics=metrics)
                 ]
         return self.dimensions_cache[metrics_key]
+
+    def get_entities(self, metrics: list[str]) -> list[EntityToolResponse]:
+        metrics_key = ",".join(sorted(metrics))
+        if metrics_key not in self.entities_cache:
+            with self.sl_client.session():
+                self.entities_cache[metrics_key] = [
+                    EntityToolResponse(
+                        name=e.name,
+                        type=e.type,
+                        description=e.description,
+                    )
+                    for e in self.sl_client.entities(metrics=metrics)
+                ]
+        return self.entities_cache[metrics_key]
 
     def validate_query_metrics_params(
         self, metrics: list[str], group_by: list[str] | None

@@ -1,6 +1,6 @@
 from dbt_mcp.config.config import Config
 from dbt_mcp.semantic_layer.client import get_semantic_layer_fetcher
-from dbt_mcp.semantic_layer.types import MetricToolResponse
+from dbt_mcp.semantic_layer.types import EntityToolResponse, MetricToolResponse
 from mcp.server.fastmcp import FastMCP
 from dbt_mcp.semantic_layer.types import DimensionToolResponse
 
@@ -25,9 +25,19 @@ def register_sl_tools(dbt_mcp: FastMCP, config: Config) -> None:
         Get available dimensions for specified metrics
 
         Args:
-            metrics: List of metric names or a single metric name
+            metrics: List of metric names
         """
         return semantic_layer_fetcher.get_dimensions(metrics=metrics)
+
+    @dbt_mcp.tool()
+    def get_entities(metrics: list[str]) -> list[EntityToolResponse]:
+        """
+        Get entities for a metric
+
+        Args:
+            metrics: List of metric names
+        """
+        return semantic_layer_fetcher.get_entities(metrics=metrics)
 
     @dbt_mcp.tool()
     def query_metrics(

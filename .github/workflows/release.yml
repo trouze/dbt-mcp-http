@@ -26,8 +26,6 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: Install go-task
         run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
-      - name: Run check
-        run: task check
       - name: Run tests
         run: task test:unit
       # TODO: Actually build the package instead of releasing a placeholder

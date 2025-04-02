@@ -15,6 +15,7 @@ jobs:
       # this permission is required for trusted publishing
       # see https://github.com/marketplace/actions/pypi-publish
       id-token: write
+      contents: read
     steps:
       - name: checkout code
         uses: actions/checkout@v4

@@ -22,5 +22,10 @@ if config.dbt_cli_enabled:
 if config.remote_enabled:
     asyncio.run(register_remote_tools(dbt_mcp, config))
 
-print("Starting dbt MCP server")
-dbt_mcp.run()
+
+def main() -> None:
+    print("Starting dbt MCP server")
+    dbt_mcp.run()
+
+
+main()

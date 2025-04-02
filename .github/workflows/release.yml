@@ -1,0 +1,38 @@
+name: Publish to PyPI
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    environment:
+      name: pypi
+    permissions:
+      # this permission is required for trusted publishing
+      # see https://github.com/marketplace/actions/pypi-publish
+      id-token: write
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+      - name: setup python
+        uses: ./.github/actions/setup-python
+        id: setup-python
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install go-task
+        run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+      - name: Run check
+        run: task check
+      - name: Run tests
+        run: task test:unit
+      # TODO: Actually build the package instead of releasing a placeholder
+      # - name: Build
+      #   run: task build
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: ./dist

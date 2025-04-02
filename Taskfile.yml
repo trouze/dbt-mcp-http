@@ -79,3 +79,13 @@ tasks:
     desc: "Run the unit tests"
     cmds:
       - uv run pytest tests/unit
+
+  build:
+    desc: "Build the package"
+    cmds:
+      - uv build
+
+  publish:
+    desc: "Publish the package to PyPI"
+    cmds:
+      - uv publish

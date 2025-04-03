@@ -29,3 +29,11 @@ def test_semantic_layer_query_metrics_with_misspellings():
     result = semantic_layer_fetcher.query_metrics(["revehue"])
     assert result is not None
     assert "revenue" in result
+
+
+def test_semantic_layer_get_entities():
+    semantic_layer_fetcher = get_semantic_layer_fetcher(config)
+    entities = semantic_layer_fetcher.get_entities(
+        metrics=["count_dbt_copilot_requests"]
+    )
+    assert len(entities) > 0

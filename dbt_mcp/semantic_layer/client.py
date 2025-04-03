@@ -2,9 +2,10 @@ import time
 from functools import cache
 
 import requests
-from dbtsl import SemanticLayerClient
 
 from dbt_mcp.config.config import Config
+from dbt_mcp.semantic_layer.gql.gql import GRAPHQL_QUERIES
+from dbt_mcp.semantic_layer.gql.gql_request import ConnAttr, submit_request
 from dbt_mcp.semantic_layer.levenshtein import get_misspellings
 from dbt_mcp.semantic_layer.types import (
     DimensionToolResponse,
@@ -14,8 +15,7 @@ from dbt_mcp.semantic_layer.types import (
 
 
 class SemanticLayerFetcher:
-    def __init__(self, sl_client: SemanticLayerClient, host: str, config: Config):
-        self.sl_client = sl_client
+    def __init__(self, host: str, config: Config):
         self.host = host
         self.config = config
         self.entities_cache: dict[str, list[EntityToolResponse]] = {}
@@ -23,45 +23,82 @@ class SemanticLayerFetcher:
 
     @cache
     def list_metrics(self) -> list[MetricToolResponse]:
-        with self.sl_client.session():
-            return [
-                MetricToolResponse(
-                    name=m.name,
-                    type=m.type,
-                    label=m.label,
-                    description=m.description,
-                )
-                for m in self.sl_client.metrics()
-            ]
+        metrics_result = submit_request(
+            ConnAttr(
+                host=self.host,
+                params={"environmentid": self.config.environment_id},
+                auth_header=f"Bearer {self.config.token}",
+            ),
+            {"query": GRAPHQL_QUERIES["metrics"]},
+        )
+        if "errors" in metrics_result:
+            raise ValueError(metrics_result["errors"])
+        return [
+            MetricToolResponse(
+                name=m.get("name"),
+                type=m.get("type"),
+                label=m.get("label"),
+                description=m.get("description"),
+            )
+            for m in metrics_result["data"]["metrics"]
+        ]
 
     def get_dimensions(self, metrics: list[str]) -> list[DimensionToolResponse]:
         metrics_key = ",".join(sorted(metrics))
         if metrics_key not in self.dimensions_cache:
-            with self.sl_client.session():
-                self.dimensions_cache[metrics_key] = [
+            dimensions_result = submit_request(
+                ConnAttr(
+                    host=self.host,
+                    params={"environmentid": self.config.environment_id},
+                    auth_header=f"Bearer {self.config.token}",
+                ),
+                {
+                    "query": GRAPHQL_QUERIES["dimensions"],
+                    "variables": {"metrics": [{"name": m} for m in metrics]},
+                },
+            )
+            if "errors" in dimensions_result:
+                raise ValueError(dimensions_result["errors"])
+            dimensions = []
+            for d in dimensions_result["data"]["dimensions"]:
+                dimensions.append(
                     DimensionToolResponse(
-                        name=d.name,
-                        type=d.type,
-                        description=d.description,
-                        label=d.label,
-                        granularities=d.queryable_time_granularities,
+                        name=d.get("name"),
+                        type=d.get("type"),
+                        description=d.get("description"),
+                        label=d.get("label"),
+                        granularities=d.get("queryableGranularities")
+                        + d.get("queryableTimeGranularities"),
                     )
-                    for d in self.sl_client.dimensions(metrics=metrics)
-                ]
+                )
+            self.dimensions_cache[metrics_key] = dimensions
         return self.dimensions_cache[metrics_key]
 
     def get_entities(self, metrics: list[str]) -> list[EntityToolResponse]:
         metrics_key = ",".join(sorted(metrics))
         if metrics_key not in self.entities_cache:
-            with self.sl_client.session():
-                self.entities_cache[metrics_key] = [
-                    EntityToolResponse(
-                        name=e.name,
-                        type=e.type,
-                        description=e.description,
-                    )
-                    for e in self.sl_client.entities(metrics=metrics)
-                ]
+            entities_result = submit_request(
+                ConnAttr(
+                    host=self.host,
+                    params={"environmentid": self.config.environment_id},
+                    auth_header=f"Bearer {self.config.token}",
+                ),
+                {
+                    "query": GRAPHQL_QUERIES["entities"],
+                    "variables": {"metrics": [{"name": m} for m in metrics]},
+                },
+            )
+            if "errors" in entities_result:
+                raise ValueError(entities_result["errors"])
+            entities = [
+                EntityToolResponse(
+                    name=e.get("name"),
+                    type=e.get("type"),
+                    description=e.get("description"),
+                )
+                for e in entities_result["data"]["entities"]
+            ]
+            self.entities_cache[metrics_key] = entities
         return self.entities_cache[metrics_key]
 
     def validate_query_metrics_params(
@@ -85,7 +122,7 @@ class SemanticLayerFetcher:
             )
 
         if errors:
-            return "Errors: " + ", ".join(errors)
+            return f"Errors: {', '.join(errors)}"
 
         available_dimensions = [d.name for d in self.get_dimensions(metrics)]
         dimension_misspellings = get_misspellings(
@@ -104,7 +141,7 @@ class SemanticLayerFetcher:
             )
 
         if errors:
-            return "Errors: " + ", ".join(errors)
+            return f"Errors: {', '.join(errors)}"
         return None
 
     def query_metrics(
@@ -152,7 +189,7 @@ class SemanticLayerFetcher:
         }}
         """
 
-        url = f"https://{self.host}/api/graphql"
+        url = f"{self.host}/api/graphql"
         headers = {"Authorization": f"Bearer {self.config.token}"}
 
         print(f"Executing GraphQL mutation: {mutation}")
@@ -219,22 +256,18 @@ class SemanticLayerFetcher:
 
 
 def get_semantic_layer_fetcher(config: Config) -> SemanticLayerFetcher:
-    if config.multicell_account_prefix:
-        host = f"{config.multicell_account_prefix}.semantic-layer.{config.host}"
+    if config.host and config.host.startswith("localhost"):
+        host = f"http://{config.host}"
+    elif config.multicell_account_prefix:
+        host = f"https://{config.multicell_account_prefix}.semantic-layer.{config.host}"
     else:
-        host = f"semantic-layer.{config.host}"
+        host = f"https://semantic-layer.{config.host}"
     if config.environment_id is None:
         raise ValueError("Environment ID is required")
     if config.token is None:
         raise ValueError("Token is required")
 
-    semantic_layer_client = SemanticLayerClient(
-        environment_id=config.environment_id,
-        auth_token=config.token,
-        host=host,
-    )
     return SemanticLayerFetcher(
-        sl_client=semantic_layer_client,
         host=host,
         config=config,
     )

@@ -1,10 +1,12 @@
 import asyncio
+
 from mcp.server.fastmcp import FastMCP
+
 from dbt_mcp.config.config import load_config
+from dbt_mcp.dbt_cli.tools import register_dbt_cli_tools
+from dbt_mcp.discovery.tools import register_discovery_tools
 from dbt_mcp.remote.tools import register_remote_tools
 from dbt_mcp.semantic_layer.tools import register_sl_tools
-from dbt_mcp.discovery.tools import register_discovery_tools
-from dbt_mcp.dbt_cli.tools import register_dbt_cli_tools
 
 dbt_mcp = FastMCP("dbt")
 

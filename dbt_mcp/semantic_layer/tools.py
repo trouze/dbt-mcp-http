@@ -1,14 +1,21 @@
+from mcp.server.fastmcp import FastMCP
+
 from dbt_mcp.config.config import Config
 from dbt_mcp.semantic_layer.client import get_semantic_layer_fetcher
-from dbt_mcp.semantic_layer.types import EntityToolResponse, MetricToolResponse
-from mcp.server.fastmcp import FastMCP
-from dbt_mcp.semantic_layer.types import DimensionToolResponse
+from dbt_mcp.semantic_layer.types import (
+    DimensionToolResponse,
+    EntityToolResponse,
+    MetricToolResponse,
+)
 
 
 def register_sl_tools(dbt_mcp: FastMCP, config: Config) -> None:
-    if not config.host or not config.token or not config.environment_id:
+    host = config.host
+    if not host or not config.token or not config.environment_id:
         raise ValueError(
-            "Host, token, and environment ID are required to use semantic layer tools. To disable semantic layer tools, set DISABLE_SEMANTIC_LAYER=true in your environment."
+            "Host, token, and environment ID are required to use semantic layer tools. "
+            + "To disable semantic layer tools, "
+            + "set DISABLE_SEMANTIC_LAYER=true in your environment."
         )
     semantic_layer_fetcher = get_semantic_layer_fetcher(config)
 

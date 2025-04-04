@@ -192,8 +192,6 @@ class SemanticLayerFetcher:
         url = f"{self.host}/api/graphql"
         headers = {"Authorization": f"Bearer {self.config.token}"}
 
-        print(f"Executing GraphQL mutation: {mutation}")
-
         # Execute create query mutation
         response = requests.post(url, headers=headers, json={"query": mutation})
         response.raise_for_status()
@@ -223,8 +221,6 @@ class SemanticLayerFetcher:
             }}
             }}
             """
-
-            print(f"Polling with query: {result_query}")
 
             response = requests.post(url, headers=headers, json={"query": result_query})
             response.raise_for_status()

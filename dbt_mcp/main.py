@@ -26,7 +26,6 @@ if config.remote_enabled:
 
 
 def main() -> None:
-    print("Starting dbt MCP server")
     dbt_mcp.run()
 
 

@@ -1,24 +1,28 @@
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import Any, AsyncGenerator
-import httpcore
-import httpx
-from mcp.server.fastmcp import FastMCP
-from mcp.client.sse import sse_client
-from mcp.client.session import ClientSession
-from pydantic import Field, create_model, WithJsonSchema
-from pydantic_core import PydanticUndefined
-from dbt_mcp.config.config import Config
-from mcp.types import Tool as RemoteTool, TextContent, ImageContent, EmbeddedResource
-from mcp.server.fastmcp.tools.base import Tool
-from mcp.server.fastmcp.utilities.func_metadata import (
-    FuncMetadata,
-    ArgModelBase,
-    _get_typed_annotation,
-)
-from pydantic.fields import FieldInfo
 from typing import (
     Annotated,
+    Any,
 )
+
+import httpcore
+import httpx
+from mcp.client.session import ClientSession
+from mcp.client.sse import sse_client
+from mcp.server.fastmcp import FastMCP
+from mcp.server.fastmcp.tools.base import Tool
+from mcp.server.fastmcp.utilities.func_metadata import (
+    ArgModelBase,
+    FuncMetadata,
+    _get_typed_annotation,
+)
+from mcp.types import EmbeddedResource, ImageContent, TextContent
+from mcp.types import Tool as RemoteTool
+from pydantic import Field, WithJsonSchema, create_model
+from pydantic.fields import FieldInfo
+from pydantic_core import PydanticUndefined
+
+from dbt_mcp.config.config import Config
 
 
 @asynccontextmanager

@@ -32,17 +32,20 @@ async def sse_mcp_connection_context(
     timeout: float = 5,
     sse_read_timeout: float = 60 * 5,
 ) -> AsyncGenerator[ClientSession, None]:
-    async with sse_client(url, headers, timeout, sse_read_timeout) as (read, write):
-        async with ClientSession(read, write) as session:
-            await session.initialize()
-            yield session
+    async with (
+        sse_client(url, headers, timeout, sse_read_timeout) as (read, write),
+        ClientSession(read, write) as session,
+    ):
+        await session.initialize()
+        yield session
 
 
 # Based on this: https://github.com/modelcontextprotocol/python-sdk/blob/9ae4df85fbab97bf476ddd160b766ca4c208cd13/src/mcp/server/fastmcp/utilities/func_metadata.py#L105
 def get_remote_tool_fn_metadata(tool: RemoteTool) -> FuncMetadata:
     dynamic_pydantic_model_params: dict[str, Any] = {}
     for key in tool.inputSchema["properties"].keys():
-        # Remote tools shouldn't have type annotations or default values for their arguments. So, we set them to defaults.
+        # Remote tools shouldn't have type annotations or default values
+        # for their arguments. So, we set them to defaults.
         field_info = FieldInfo.from_annotated_attribute(
             annotation=_get_typed_annotation(
                 annotation=Annotated[
@@ -65,13 +68,12 @@ def get_remote_tool_fn_metadata(tool: RemoteTool) -> FuncMetadata:
 
 
 async def list_remote_tools(
-    config: Config, headers: dict[str, Any]
+    url: str,
+    headers: dict[str, Any],
 ) -> list[RemoteTool]:
     result: list[RemoteTool] = []
     try:
-        async with sse_mcp_connection_context(
-            config.remote_mcp_url, headers
-        ) as session:
+        async with sse_mcp_connection_context(url, headers) as session:
             result = (await session.list_tools()).tools
     except* (
         httpx.ConnectError,
@@ -89,7 +91,7 @@ async def register_remote_tools(dbt_mcp: FastMCP, config: Config) -> None:
         "Authorization": f"Bearer {config.token}",
         "environmentId": str(config.environment_id),
     }
-    remote_tools = await list_remote_tools(config, headers)
+    remote_tools = await list_remote_tools(config.remote_mcp_url, headers)
     for tool in remote_tools:
         # Create a new function using a factory to avoid closure issues
         def create_tool_function(tool_name: str):
@@ -113,7 +115,8 @@ async def register_remote_tools(dbt_mcp: FastMCP, config: Config) -> None:
             parameters=tool.inputSchema,
             fn_metadata=get_remote_tool_fn_metadata(tool),
             is_async=True,
-            # `tool_function` doesn't currently have a `ctx: Context` parameter, so this is None.
+            # `tool_function` doesn't currently have a
+            # `ctx: Context` parameter, so this is None.
             # See this: https://github.com/modelcontextprotocol/python-sdk/blob/9ae4df85fbab97bf476ddd160b766ca4c208cd13/README.md?plain=1#L283
             context_kwarg=None,
         )

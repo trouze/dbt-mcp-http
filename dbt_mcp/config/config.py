@@ -1,5 +1,6 @@
-from dataclasses import dataclass
 import os
+from dataclasses import dataclass
+
 from dotenv import load_dotenv
 
 
@@ -15,8 +16,8 @@ class Config:
     remote_enabled: bool
     dbt_command: str
     dbt_executable_type: str
-    remote_mcp_url: str
     multicell_account_prefix: str | None
+    remote_mcp_url: str
 
 
 def load_config() -> Config:
@@ -32,7 +33,6 @@ def load_config() -> Config:
     disable_semantic_layer = os.environ.get("DISABLE_SEMANTIC_LAYER", "false") == "true"
     disable_discovery = os.environ.get("DISABLE_DISCOVERY", "false") == "true"
     disable_remote = os.environ.get("DISABLE_REMOTE", "false") == "true"
-    remote_mcp_url = os.environ.get("REMOTE_MCP_URL", "http://localhost:8000/mcp/sse")
     multicell_account_prefix = os.environ.get("MULTICELL_ACCOUNT_PREFIX", None)
 
     errors = []
@@ -81,6 +81,9 @@ def load_config() -> Config:
         remote_enabled=not disable_remote,
         dbt_command=dbt_path,
         dbt_executable_type=dbt_executable_type,
-        remote_mcp_url=remote_mcp_url,
         multicell_account_prefix=multicell_account_prefix,
+        remote_mcp_url=(
+            "http://" if host and host.startswith("localhost") else "https://"
+        )
+        + f"{host}/mcp/sse",
     )

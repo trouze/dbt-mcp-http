@@ -1,3 +1,4 @@
+import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import (
@@ -5,8 +6,6 @@ from typing import (
     Any,
 )
 
-import httpcore
-import httpx
 from mcp.client.session import ClientSession
 from mcp.client.sse import sse_client
 from mcp.server.fastmcp import FastMCP
@@ -23,6 +22,8 @@ from pydantic.fields import FieldInfo
 from pydantic_core import PydanticUndefined
 
 from dbt_mcp.config.config import Config
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -75,14 +76,8 @@ async def list_remote_tools(
     try:
         async with sse_mcp_connection_context(url, headers) as session:
             result = (await session.list_tools()).tools
-    except* (
-        httpx.ConnectError,
-        httpx.ReadTimeout,
-        httpx.ConnectTimeout,
-        httpcore.ConnectTimeout,
-        httpx.RemoteProtocolError,
-    ) as e:
-        print(f"Connection error while listing remote tools: {e}")
+    except Exception as e:
+        logger.error(f"Connection error while listing remote tools: {e}")
     return result
 
 

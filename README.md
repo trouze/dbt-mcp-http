@@ -1,6 +1,6 @@
 # dbt MCP Server
 
-This MCP (Model Context Protocol) server provides MCP tools to interact with different dbt in a few different ways.
+This MCP (Model Context Protocol) server provides MCP tools to interact with dbt in a few different ways.
 
 In its current form, it allows users to:
 - run commands from their local install of the dbt Core or dbt Cloud CLI

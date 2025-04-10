@@ -76,8 +76,11 @@ async def list_remote_tools(
     try:
         async with sse_mcp_connection_context(url, headers) as session:
             result = (await session.list_tools()).tools
-    except Exception as e:
-        logger.error(f"Connection error while listing remote tools: {e}")
+    except Exception:
+        # TODO: uncomment this when remote tools are available
+        # and this is actually an error.
+        # logger.error(f"Connection error while listing remote tools: {e}")
+        pass
     return result
 
 
@@ -110,8 +113,5 @@ async def register_remote_tools(dbt_mcp: FastMCP, config: Config) -> None:
             parameters=tool.inputSchema,
             fn_metadata=get_remote_tool_fn_metadata(tool),
             is_async=True,
-            # `tool_function` doesn't currently have a
-            # `ctx: Context` parameter, so this is None.
-            # See this: https://github.com/modelcontextprotocol/python-sdk/blob/9ae4df85fbab97bf476ddd160b766ca4c208cd13/README.md?plain=1#L283
             context_kwarg=None,
         )

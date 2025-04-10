@@ -57,18 +57,54 @@ Be sure to replace `<path-to-this-directory>`
 If you encounter any problems. You can try running `task run` to see errors in your terminal
 
 
-### Claude Desktop
+## Claude Desktop
 
 Follow [these](https://modelcontextprotocol.io/quickstart/user) instructions to create the `claude_desktop_config.json` file and connect.
 
 You can find the Claude Desktop logs at `~/Library/Logs/Claude`.
 
 
-### Cursor
+## Cursor
 
-1. Open up the Cursor menu and select Settings → Cursor Settings → MCP
+1. Open the Cursor menu and select Settings → Cursor Settings → MCP
 2. Click "Add new global MCP server"
 3. Add the config from above to the provided `mcp.json` file
 4. Verify your connection is active within the MCP tab
 
 Cursor MCP docs [here](https://docs.cursor.com/context/model-context-protocol) for reference
+
+
+## VS Code
+
+1. Open the Settings menu (Command + Comma) and select the correct tab atop the page for your use case
+    - `Workspace` - configures the server in the context of your workspace
+    - `User` - configures the server in the context of your user
+2. Select Features → Chat
+3. Ensure that "Mcp" is `Enabled`
+![mcp-vscode-settings](https://github.com/user-attachments/assets/3d3fa853-2398-422a-8a6d-7f0a97120aba)
+
+
+4. Click "Edit in settings.json" under "Mcp > Discovery"
+
+5. Add your server configuration (`dbt`) to the provided `settings.json` file as one of the servers
+```json
+{
+    "mcp": {
+        "inputs": [],
+        "servers": {
+          "dbt": {
+            "command": "<path-to-this-directory>/.venv/bin/mcp",
+            "args": ["run", "<path-to-this-directory>/dbt_mcp/main.py"]
+          }
+        }
+    }
+}
+```
+
+After setup you can start, stop, and configure your MCP servers by:
+- Running the `MCP: List Servers` command from the Command Palette (Control + Command + P) and selecting the server
+- Utlizing the keywords inline within the `settings.json` file
+
+![inline-management](https://github.com/user-attachments/assets/d33d4083-5243-4b36-adab-72f12738c263)
+
+VS Code MCP docs [here](https://code.visualstudio.com/docs/copilot/chat/mcp-servers) for reference

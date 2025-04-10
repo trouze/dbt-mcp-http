@@ -1,6 +1,15 @@
 # dbt MCP Server
 
-A MCP (Model Context Protocol) server for interacting with dbt resources.
+This MCP (Model Context Protocol) server provides MCP tools to interact with different dbt in a few different ways.
+
+In its current form, it allows users to:
+- run commands from their local install of the dbt Core or dbt Cloud CLI
+- get information about their models and the transformation configured in a given dbt project
+- interact with the dbt Cloud Semantic Layer gateway, getting the list of metrics, dimensions and directly querying those
+
+## Architecture
+
+![architecture diagram of the dbt MCP server](docs/d2.png)
 
 ## Setup
 

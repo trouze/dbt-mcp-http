@@ -1,0 +1,64 @@
+direction: right
+*.style.border-radius: 8
+
+classes: {
+  container: {
+    grid-columns: 2
+    grid-rows: 2
+    grid-gap: 10
+    width: 600
+    *.style.border-radius: 8
+  }
+}
+
+mcp: dbt MCP server
+
+tools: Tools {
+  cli: dbt CLI\nlocal install {
+    label.near: outside-right-center
+    class: container
+    build
+    compile
+    docs
+    ls
+    parse
+    run
+    test
+  }
+
+  discovery: Discovery\nMetadata API or local artifacts {
+    label.near: outside-right-center
+    class: container
+    get_mart_models
+    get_all_models
+    get_model_details
+    get_model_parents
+  }
+
+  sl: Semantic Layer\ndbt Cloud SL gateway {
+    label.near: outside-right-center
+    class: container
+    list_metrics
+    get_dimensions
+    get_entities
+    query_metrics
+  }
+}
+
+mcp -- tools.*
+
+clients: MCP Clients {
+  near: mcp
+  grid-columns: 1
+  *.style.border-radius: 8
+  Claude
+  cursor
+  mcp_clients: Any MCP client
+}
+
+other_mcp: Other MCP servers
+other_tools: Other tools
+
+clients -- mcp
+clients -- other_mcp
+other_mcp -- other_tools

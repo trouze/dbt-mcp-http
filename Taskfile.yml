@@ -80,6 +80,11 @@ tasks:
     cmds:
       - uv run pytest tests/unit
 
+  eval:
+    desc: "Run the evals"
+    cmds:
+      - uv run pytest evals {{.CLI_ARGS}}
+
   build:
     desc: "Build the package"
     cmds:

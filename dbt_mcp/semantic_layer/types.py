@@ -33,3 +33,18 @@ class EntityToolResponse:
     name: str
     type: EntityType
     description: str | None = None
+
+
+@dataclass
+class QueryMetricsSuccess:
+    result: str
+    error: None = None
+
+
+@dataclass
+class QueryMetricsError:
+    error: str
+    result: None = None
+
+
+QueryMetricsResult = QueryMetricsSuccess | QueryMetricsError

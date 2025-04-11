@@ -1,3 +1,6 @@
+import logging
+from time import time
+
 from mcp.server.fastmcp import FastMCP
 
 from dbt_mcp.config.config import Config
@@ -12,6 +15,8 @@ from dbt_mcp.semantic_layer.types import (
     QueryMetricsSuccess,
 )
 
+logger = logging.getLogger(__name__)
+
 
 def register_sl_tools(dbt_mcp: FastMCP, config: Config) -> None:
     host = config.host
@@ -25,15 +30,27 @@ def register_sl_tools(dbt_mcp: FastMCP, config: Config) -> None:
 
     @dbt_mcp.tool(description=get_prompt("semantic_layer/list_metrics"))
     def list_metrics() -> list[MetricToolResponse]:
-        return semantic_layer_fetcher.list_metrics()
+        start_time = time()
+        result = semantic_layer_fetcher.list_metrics()
+        end_time = time()
+        logger.info(f"list_metrics took {end_time - start_time} seconds")
+        return result
 
     @dbt_mcp.tool(description=get_prompt("semantic_layer/get_dimensions"))
     def get_dimensions(metrics: list[str]) -> list[DimensionToolResponse]:
-        return semantic_layer_fetcher.get_dimensions(metrics=metrics)
+        start_time = time()
+        result = semantic_layer_fetcher.get_dimensions(metrics=metrics)
+        end_time = time()
+        logger.info(f"get_dimensions took {end_time - start_time} seconds")
+        return result
 
     @dbt_mcp.tool(description=get_prompt("semantic_layer/get_entities"))
     def get_entities(metrics: list[str]) -> list[EntityToolResponse]:
-        return semantic_layer_fetcher.get_entities(metrics=metrics)
+        start_time = time()
+        result = semantic_layer_fetcher.get_entities(metrics=metrics)
+        end_time = time()
+        logger.info(f"get_entities took {end_time - start_time} seconds")
+        return result
 
     @dbt_mcp.tool(description=get_prompt("semantic_layer/query_metrics"))
     def query_metrics(
@@ -43,6 +60,7 @@ def register_sl_tools(dbt_mcp: FastMCP, config: Config) -> None:
         where: str | None = None,
         limit: int | None = None,
     ) -> str:
+        start_time = time()
         result = semantic_layer_fetcher.query_metrics(
             metrics=metrics,
             group_by=group_by,
@@ -50,6 +68,8 @@ def register_sl_tools(dbt_mcp: FastMCP, config: Config) -> None:
             where=where,
             limit=limit,
         )
+        end_time = time()
+        logger.info(f"query_metrics took {end_time - start_time} seconds")
         if isinstance(result, QueryMetricsSuccess):
             return result.result
         else:

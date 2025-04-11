@@ -1,5 +1,8 @@
+from dbtsl.api.shared.query_params import GroupByParam, GroupByType
+
 from dbt_mcp.config.config import load_config
 from dbt_mcp.semantic_layer.client import get_semantic_layer_fetcher
+from dbt_mcp.semantic_layer.types import OrderByParam
 
 config = load_config()
 
@@ -19,8 +22,47 @@ def test_semantic_layer_list_dimensions():
 
 def test_semantic_layer_query_metrics():
     semantic_layer_fetcher = get_semantic_layer_fetcher(config)
-    metrics = semantic_layer_fetcher.list_metrics()
-    result = semantic_layer_fetcher.query_metrics(metrics=[metrics[0].name])
+    result = semantic_layer_fetcher.query_metrics(
+        metrics=["revenue"],
+        group_by=[
+            GroupByParam(
+                name="metric_time",
+                type=GroupByType.DIMENSION,
+                grain=None,
+            )
+        ],
+    )
+    assert result is not None
+
+
+def test_semantic_layer_query_metrics_with_group_by_grain():
+    semantic_layer_fetcher = get_semantic_layer_fetcher(config)
+    result = semantic_layer_fetcher.query_metrics(
+        metrics=["revenue"],
+        group_by=[
+            GroupByParam(
+                name="metric_time",
+                type=GroupByType.DIMENSION,
+                grain="day",
+            )
+        ],
+    )
+    assert result is not None
+
+
+def test_semantic_layer_query_metrics_with_order_by():
+    semantic_layer_fetcher = get_semantic_layer_fetcher(config)
+    result = semantic_layer_fetcher.query_metrics(
+        metrics=["revenue"],
+        group_by=[
+            GroupByParam(
+                name="metric_time",
+                type=GroupByType.DIMENSION,
+                grain=None,
+            )
+        ],
+        order_by=[OrderByParam(name="metric_time", descending=True)],
+    )
     assert result is not None
 
 

@@ -1,3 +1,4 @@
+from dbtsl.api.shared.query_params import GroupByParam
 from mcp.server.fastmcp import FastMCP
 
 from dbt_mcp.config.config import Config
@@ -49,8 +50,7 @@ def register_sl_tools(dbt_mcp: FastMCP, config: Config) -> None:
     @dbt_mcp.tool()
     def query_metrics(
         metrics: list[str],
-        group_by: list[str] | None = None,
-        time_grain: str | None = None,
+        group_by: list[GroupByParam] | None = None,
         limit: int | None = None,
     ):
         """
@@ -63,5 +63,7 @@ def register_sl_tools(dbt_mcp: FastMCP, config: Config) -> None:
             limit: Optional limit for number of results
         """
         return semantic_layer_fetcher.query_metrics(
-            metrics, group_by, time_grain, limit
+            metrics=metrics,
+            group_by=group_by,
+            limit=limit,
         )

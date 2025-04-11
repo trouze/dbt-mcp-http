@@ -1,7 +1,14 @@
 from dataclasses import dataclass
-from dbtsl.models.metric import MetricType
+
 from dbtsl.models.dimension import DimensionType
 from dbtsl.models.entity import EntityType
+from dbtsl.models.metric import MetricType
+
+
+@dataclass
+class OrderByParam:
+    name: str
+    descending: bool
 
 
 @dataclass

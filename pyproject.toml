@@ -2,9 +2,7 @@
 name = "dbt-mcp"
 version = "0.1.0"
 description = "A MCP (Model Context Protocol) server for interacting with dbt resources."
-authors = [
-  {name = "dbt Labs"}
-]
+authors = [{ name = "dbt Labs" }]
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.12"
@@ -16,9 +14,10 @@ classifiers = [
   "Intended Audience :: Developers",
 ]
 dependencies = [
-  "dbt-sl-sdk[sync]>=0.8.0",
+  "dbt-sl-sdk[sync]>=0.10.0",
   # We are using some internal functions, so pinning this dependency.
   "mcp[cli]==1.6.0",
+  "pandas>=2.2.3",
   "python-dotenv>=1.0.1",
   "requests>=2.32.3",
 ]

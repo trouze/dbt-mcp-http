@@ -44,7 +44,7 @@ Then edit `.env` with your specific environment variables:
 
 ## Using with MCP Clients
 
-After going through [Setup](#setup), you can use your server with an MCP client. 
+After going through [Setup](#setup), you can use your server with an MCP client.
 
 This configuration will be added to the respective client's config file:
 

@@ -1,1 +1,1 @@
-List the resources in the project
+List the resources in the your dbt project.

@@ -1,6 +1,9 @@
 import subprocess
-from dbt_mcp.config.config import Config
+
 from mcp.server.fastmcp import FastMCP
+
+from dbt_mcp.config.config import Config
+from dbt_mcp.prompts.prompts import get_prompt
 
 
 def register_dbt_cli_tools(dbt_mcp: FastMCP, config: Config) -> None:
@@ -10,6 +13,7 @@ def register_dbt_cli_tools(dbt_mcp: FastMCP, config: Config) -> None:
             cwd=config.project_dir,
             capture_output=True,
             text=True,
+            check=False,
         )
         # Cloud CLI reports errors to stderr, Core CLI reports errors to stdout
         if config.dbt_executable_type == "cloud" and result.returncode != 0:
@@ -17,51 +21,30 @@ def register_dbt_cli_tools(dbt_mcp: FastMCP, config: Config) -> None:
         else:
             return result.stdout
 
-    @dbt_mcp.tool()
+    @dbt_mcp.tool(description=get_prompt("dbt_cli/build"))
     def build() -> str:
-        """
-        Build the project
-        """
         return _run_dbt_command(["build"])
 
-    @dbt_mcp.tool()
+    @dbt_mcp.tool(description=get_prompt("dbt_cli/compile"))
     def compile() -> str:
-        """
-        Compile the project
-        """
         return _run_dbt_command(["compile"])
 
-    @dbt_mcp.tool()
+    @dbt_mcp.tool(description=get_prompt("dbt_cli/docs"))
     def docs() -> str:
-        """
-        Generate the docs for the project
-        """
         return _run_dbt_command(["docs", "generate"])
 
-    @dbt_mcp.tool(name="list")
+    @dbt_mcp.tool(name="list", description=get_prompt("dbt_cli/list"))
     def ls() -> str:
-        """
-        List the resources in the project
-        """
         return _run_dbt_command(["list"])
 
-    @dbt_mcp.tool()
+    @dbt_mcp.tool(description=get_prompt("dbt_cli/parse"))
     def parse() -> str:
-        """
-        Parse the project
-        """
         return _run_dbt_command(["parse"])
 
-    @dbt_mcp.tool()
+    @dbt_mcp.tool(description=get_prompt("dbt_cli/run"))
     def run() -> str:
-        """
-        Run the project
-        """
         return _run_dbt_command(["run"])
 
-    @dbt_mcp.tool()
+    @dbt_mcp.tool(description=get_prompt("dbt_cli/test"))
     def test() -> str:
-        """
-        Test the project
-        """
         return _run_dbt_command(["test"])

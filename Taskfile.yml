@@ -94,3 +94,15 @@ tasks:
     desc: "Publish the package to PyPI"
     cmds:
       - uv publish
+
+  d2:
+    desc: "Update d2 diagram from the config"
+    preconditions:
+      - sh: command -v d2 &> /dev/null
+        msg: "Error: d2 command not found. You can install it with 'brew install d2'"
+    sources:
+      - docs/diagram.d2
+    generates:
+      - docs/d2.png
+    cmds:
+      - d2 docs/diagram.d2 docs/d2.png --pad 20

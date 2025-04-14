@@ -1,3 +1,9 @@
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+}
+
 direction: right
 *.style.border-radius: 8
 
@@ -14,7 +20,7 @@ classes: {
 mcp: dbt MCP server
 
 tools: Tools {
-  cli: dbt CLI\nlocal install {
+  cli: dbt CLI\nlocal executable {
     label.near: outside-right-center
     class: container
     build
@@ -26,7 +32,7 @@ tools: Tools {
     test
   }
 
-  discovery: Discovery\nMetadata API or local artifacts {
+  discovery: Discovery\nMetadata API {
     label.near: outside-right-center
     class: container
     get_mart_models
@@ -35,7 +41,7 @@ tools: Tools {
     get_model_parents
   }
 
-  sl: Semantic Layer\ndbt Cloud SL gateway {
+  sl: dbt Semantic Layer {
     label.near: outside-right-center
     class: container
     list_metrics
@@ -48,7 +54,6 @@ tools: Tools {
 mcp -- tools.*
 
 clients: MCP Clients {
-  near: mcp
   grid-columns: 1
   *.style.border-radius: 8
   Claude

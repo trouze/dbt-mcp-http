@@ -95,6 +95,11 @@ tasks:
     cmds:
       - uv publish
 
+  client:
+    desc: "Run the test client"
+    cmds:
+      - uv run client/main.py
+
   d2:
     desc: "Update d2 diagram from the config"
     preconditions:

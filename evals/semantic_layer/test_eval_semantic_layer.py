@@ -11,6 +11,7 @@ from openai.types.responses import (
 )
 from openai.types.responses.response_input_param import FunctionCallOutput
 
+from client.tools import get_tools
 from dbt_mcp.config.config import load_config
 from dbt_mcp.mcp.server import dbt_mcp
 from dbt_mcp.semantic_layer.client import get_semantic_layer_fetcher
@@ -21,20 +22,6 @@ LLM_MODEL = "gpt-4o-mini"
 llm_client = OpenAI()
 config = load_config()
 semantic_layer_fetcher = get_semantic_layer_fetcher(config)
-
-
-async def get_tools():
-    mcp_tools = await dbt_mcp.list_tools()
-    return [
-        FunctionToolParam(
-            type="function",
-            name=t.name,
-            description=t.description,
-            parameters=t.inputSchema,
-            strict=False,
-        )
-        for t in mcp_tools
-    ]
 
 
 async def expect_metadata_tool_call(

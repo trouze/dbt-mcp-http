@@ -33,6 +33,11 @@ dev = [
   "pyarrow-stubs>=19.1",
 ]
 
+[project.urls]
+Documentation = "https://github.com/dbt-labs/dbt-mcp#readme"
+Issues = "https://github.com/dbt-labs/dbt-mcp/issues"
+Source = "https://github.com/dbt-labs/dbt-mcp"
+
 [project.scripts]
 dbt-mcp = "dbt_mcp.main:main"
 

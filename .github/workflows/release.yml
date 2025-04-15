@@ -2,6 +2,13 @@ name: Publish to PyPI
 
 on:
   workflow_dispatch:
+    inputs:
+      pypi-server:
+        description: "The PyPI server to publish to"
+        type: choice
+        options:
+          - pypi
+          - test-pypi
 
 permissions:
   contents: read
@@ -10,7 +17,7 @@ jobs:
   publish:
     runs-on: ubuntu-24.04
     environment:
-      name: pypi
+      name: ${{ inputs.pypi-server == 'pypi' && 'pypi' || 'pypiTest' }}
     permissions:
       # this permission is required for trusted publishing
       # see https://github.com/marketplace/actions/pypi-publish
@@ -34,4 +41,5 @@ jobs:
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
+          repository-url: ${{ inputs.pypi-server == 'pypi' && 'https://pypi.org/project/dbt-mcp/' || 'https://test.pypi.org/project/dbt-mcp/' }}
           packages-dir: ./dist

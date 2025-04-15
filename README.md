@@ -55,7 +55,7 @@ This configuration will be added to the respective client's config file:
       "command": "<path-to-this-directory>/.venv/bin/mcp",
       "args": [
         "run",
-        "<path-to-this-directory>/dbt_mcp/main.py"
+        "<path-to-this-directory>/src/dbt_mcp/main.py"
       ]
     }
   }
@@ -103,7 +103,7 @@ Cursor MCP docs [here](https://docs.cursor.com/context/model-context-protocol) f
         "servers": {
           "dbt": {
             "command": "<path-to-this-directory>/.venv/bin/mcp",
-            "args": ["run", "<path-to-this-directory>/dbt_mcp/main.py"]
+            "args": ["run", "<path-to-this-directory>/src/dbt_mcp/main.py"]
           }
         }
     }

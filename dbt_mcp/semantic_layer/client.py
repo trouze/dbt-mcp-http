@@ -1,6 +1,7 @@
 from functools import cache
 
 from dbtsl.api.shared.query_params import OrderByGroupBy
+from dbtsl.error import QueryFailedError
 
 from dbt_mcp.config.config import Config
 from dbt_mcp.semantic_layer.gql.gql import GRAPHQL_QUERIES
@@ -150,6 +151,30 @@ class SemanticLayerFetcher:
             return f"Errors: {', '.join(errors)}"
         return None
 
+    # TODO: move this to the SDK
+    def _format_query_failed_error(self, query_error: Exception) -> QueryMetricsError:
+        if isinstance(query_error, QueryFailedError):
+            return QueryMetricsError(
+                error=str(query_error)
+                .replace("QueryFailedError(", "")
+                .rstrip(")")
+                .lstrip("[")
+                .rstrip("]")
+                .lstrip('"')
+                .rstrip('"')
+                .replace("INVALID_ARGUMENT: [FlightSQL]", "")
+                .replace("(InvalidArgument; Prepare)", "")
+                .replace("(InvalidArgument; ExecuteQuery)", "")
+                .replace("Failed to prepare statement:", "")
+                .replace(
+                    "com.dbt.semanticlayer.exceptions.DataPlatformException:",
+                    "",
+                )
+                .strip()
+            )
+        else:
+            return QueryMetricsError(error=str(query_error))
+
     def query_metrics(
         self,
         metrics: list[str],
@@ -158,58 +183,42 @@ class SemanticLayerFetcher:
         where: str | None = None,
         limit: int | None = None,
     ) -> QueryMetricsResult:
-        error_message = self.validate_query_metrics_params(
+        validation_error = self.validate_query_metrics_params(
             metrics=metrics,
             group_by=group_by,
         )
-        if error_message:
-            return QueryMetricsError(error=error_message)
+        if validation_error:
+            return QueryMetricsError(error=validation_error)
 
         try:
+            query_error = None
             with self.sl_client.session():
-                query_result = self.sl_client.query(
-                    metrics=metrics,
-                    # TODO: remove this type ignore once this PR is merged: https://github.com/dbt-labs/semantic-layer-sdk-python/pull/80
-                    group_by=group_by,  # type: ignore
-                    order_by=[
-                        OrderByGroupBy(
-                            name=o.name,
-                            descending=o.descending,
-                            grain=None,
-                        )
-                        for o in order_by or []
-                    ],
-                    where=[where] if where else None,
-                    limit=limit,
-                )
+                # Catching any exception within the session
+                # to ensure it is closed properly
+                try:
+                    query_result = self.sl_client.query(
+                        metrics=metrics,
+                        # TODO: remove this type ignore once this PR is merged: https://github.com/dbt-labs/semantic-layer-sdk-python/pull/80
+                        group_by=group_by,  # type: ignore
+                        order_by=[
+                            OrderByGroupBy(
+                                name=o.name,
+                                descending=o.descending,
+                                grain=None,
+                            )
+                            for o in order_by or []
+                        ],
+                        where=[where] if where else None,
+                        limit=limit,
+                    )
+                except Exception as e:
+                    query_error = e
+            if query_error:
+                return self._format_query_failed_error(query_error)
             json_result = query_result.to_pandas().to_json(orient="records", indent=2)
             return QueryMetricsSuccess(result=json_result)
         except Exception as e:
-            try:
-                # Removing some needless noise from the error message
-                if (
-                    hasattr(e, "args")
-                    and e.args
-                    and e.args[0]
-                    and isinstance(e.args[0], tuple)
-                    and e.args[0][0]
-                    and isinstance(e.args[0][0], str)
-                ):
-                    return QueryMetricsError(
-                        error=e.args[0][0]
-                        .replace("INVALID_ARGUMENT: [FlightSQL]", "")
-                        .replace("(InvalidArgument; Prepare)", "")
-                        .replace("(InvalidArgument; ExecuteQuery)", "")
-                        .replace("Failed to prepare statement:", "")
-                        .replace(
-                            "com.dbt.semanticlayer.exceptions.DataPlatformException:",
-                            "",
-                        )
-                        .strip()
-                    )
-            except Exception:
-                pass
-            return QueryMetricsError(error=str(e))
+            return self._format_query_failed_error(e)
 
 
 def get_semantic_layer_fetcher(config: Config) -> SemanticLayerFetcher:

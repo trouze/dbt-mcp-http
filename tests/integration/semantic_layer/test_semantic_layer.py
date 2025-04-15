@@ -1,7 +1,6 @@
-from dbtsl.api.shared.query_params import GroupByParam, GroupByType
-
 from dbt_mcp.config.config import load_config
 from dbt_mcp.semantic_layer.client import get_semantic_layer_fetcher
+from dbt_mcp.semantic_layer.sdk.query_params import GroupByParam, GroupByType
 from dbt_mcp.semantic_layer.types import OrderByParam
 
 config = load_config()
@@ -27,10 +26,41 @@ def test_semantic_layer_query_metrics():
         group_by=[
             GroupByParam(
                 name="metric_time",
-                type=GroupByType.DIMENSION,
+                type=GroupByType.TIME_DIMENSION,
                 grain=None,
             )
         ],
+    )
+    assert result is not None
+
+
+def test_semantic_layer_query_metrics_invalid_query():
+    semantic_layer_fetcher = get_semantic_layer_fetcher(config)
+    result = semantic_layer_fetcher.query_metrics(
+        metrics=["food_revenue"],
+        group_by=[
+            GroupByParam(
+                name="order_id__location__location_name",
+                type=GroupByType.CATEGORICAL_DIMENSION,
+                grain=None,
+            ),
+            GroupByParam(
+                name="metric_time",
+                type=GroupByType.TIME_DIMENSION,
+                grain="MONTH",
+            ),
+        ],
+        order_by=[
+            OrderByParam(
+                name="metric_time",
+                descending=True,
+            ),
+            OrderByParam(
+                name="food_revenue",
+                descending=True,
+            ),
+        ],
+        limit=5,
     )
     assert result is not None
 
@@ -42,7 +72,7 @@ def test_semantic_layer_query_metrics_with_group_by_grain():
         group_by=[
             GroupByParam(
                 name="metric_time",
-                type=GroupByType.DIMENSION,
+                type=GroupByType.TIME_DIMENSION,
                 grain="day",
             )
         ],
@@ -57,7 +87,7 @@ def test_semantic_layer_query_metrics_with_order_by():
         group_by=[
             GroupByParam(
                 name="metric_time",
-                type=GroupByType.DIMENSION,
+                type=GroupByType.TIME_DIMENSION,
                 grain=None,
             )
         ],

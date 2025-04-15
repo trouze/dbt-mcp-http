@@ -49,9 +49,8 @@ class SyncSemanticLayerClient(
     @contextmanager
     def session(self) -> Iterator[Self]:
         """Establish a connection with the dbt Semantic Layer's servers."""
-        # TODO: I'm unsure why this error is happening.
-        # if self._has_session:
-        #     raise ValueError("Cannot open session within session.")
+        if self._has_session:
+            raise ValueError("Cannot open session within session.")
 
         with self._gql.session(), self._adbc.session():
             self._has_session = True

@@ -40,9 +40,8 @@ class SyncADBCClient(BaseADBCClient):
 
         All requests made during the same session will reuse the same connection.
         """
-        # TODO: I'm unsure why this error is happening.
-        # if self._conn_unsafe is not None:
-        #     raise ValueError("A client session is already open.")
+        if self._conn_unsafe is not None:
+            raise ValueError("A client session is already open.")
 
         ctx = self._get_connection_context_manager()
         with ctx as conn:

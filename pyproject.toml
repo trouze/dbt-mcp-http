@@ -1,6 +1,6 @@
 [project]
 name = "dbt-mcp"
-version = "0.1.0"
+version = "0.1.1"
 description = "A MCP (Model Context Protocol) server for interacting with dbt resources."
 authors = [{ name = "dbt Labs" }]
 readme = "README.md"

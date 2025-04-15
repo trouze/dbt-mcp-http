@@ -117,3 +117,7 @@ After setup you can start, stop, and configure your MCP servers by:
 ![inline-management](https://github.com/user-attachments/assets/d33d4083-5243-4b36-adab-72f12738c263)
 
 VS Code MCP docs [here](https://code.visualstudio.com/docs/copilot/chat/mcp-servers) for reference
+
+## Contributing
+
+Read `CONTRIBUTING.md` for instructions on how to get involved!

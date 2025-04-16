@@ -1,5 +1,7 @@
 import os
+
 import pytest
+
 from dbt_mcp.discovery.client import MetadataAPIClient, ModelFilter, ModelsFetcher
 
 

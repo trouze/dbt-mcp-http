@@ -1,6 +1,9 @@
 import textwrap
-from typing import Optional, TypedDict, Literal
+from typing import Literal, TypedDict
+
 import requests
+
+from dbt_mcp.gql.errors import raise_gql_error
 
 PAGE_SIZE = 100
 MAX_NUM_MODELS = 1000
@@ -165,7 +168,7 @@ class MetadataAPIClient:
 
 
 class ModelFilter(TypedDict, total=False):
-    modelingLayer: Optional[Literal["marts"]]
+    modelingLayer: Literal["marts"] | None
 
 
 class ModelsFetcher:
@@ -174,6 +177,7 @@ class ModelsFetcher:
         self.environment_id = environment_id
 
     def _parse_response_to_json(self, result: dict) -> list[dict]:
+        raise_gql_error(result)
         edges = result["data"]["environment"]["applied"]["models"]["edges"]
         parsed_edges: list[dict] = []
         if not edges:
@@ -189,7 +193,7 @@ class ModelsFetcher:
             parsed_edges.append(node)
         return parsed_edges
 
-    def fetch_models(self, model_filter: Optional[ModelFilter] = None) -> list[dict]:
+    def fetch_models(self, model_filter: ModelFilter | None = None) -> list[dict]:
         has_next_page = True
         after_cursor: str = ""
         all_edges: list[dict] = []
@@ -223,6 +227,7 @@ class ModelsFetcher:
         result = self.api_client.execute_query(
             GraphQLQueries.GET_MODEL_DETAILS, variables
         )
+        raise_gql_error(result)
         edges = result["data"]["environment"]["applied"]["models"]["edges"]
         if not edges:
             return {}
@@ -237,6 +242,7 @@ class ModelsFetcher:
         result = self.api_client.execute_query(
             GraphQLQueries.GET_MODEL_PARENTS, variables
         )
+        raise_gql_error(result)
         edges = result["data"]["environment"]["applied"]["models"]["edges"]
         if not edges:
             return []

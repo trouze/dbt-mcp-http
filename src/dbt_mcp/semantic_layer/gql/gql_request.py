@@ -2,6 +2,8 @@ from dataclasses import dataclass
 
 import requests
 
+from dbt_mcp.gql.errors import raise_gql_error
+
 
 @dataclass
 class ConnAttr:
@@ -26,4 +28,6 @@ def submit_request(
             "x-dbt-partner-source": "dbt-mcp",
         },
     )
-    return r.json()
+    result = r.json()
+    raise_gql_error(result)
+    return result

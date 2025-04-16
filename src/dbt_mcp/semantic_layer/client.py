@@ -38,8 +38,6 @@ class SemanticLayerFetcher:
             ),
             {"query": GRAPHQL_QUERIES["metrics"]},
         )
-        if "errors" in metrics_result:
-            raise ValueError(metrics_result["errors"])
         return [
             MetricToolResponse(
                 name=m.get("name"),
@@ -64,8 +62,6 @@ class SemanticLayerFetcher:
                     "variables": {"metrics": [{"name": m} for m in metrics]},
                 },
             )
-            if "errors" in dimensions_result:
-                raise ValueError(dimensions_result["errors"])
             dimensions = []
             for d in dimensions_result["data"]["dimensions"]:
                 dimensions.append(
@@ -95,8 +91,6 @@ class SemanticLayerFetcher:
                     "variables": {"metrics": [{"name": m} for m in metrics]},
                 },
             )
-            if "errors" in entities_result:
-                raise ValueError(entities_result["errors"])
             entities = [
                 EntityToolResponse(
                     name=e.get("name"),

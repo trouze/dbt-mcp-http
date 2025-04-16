@@ -9,7 +9,7 @@ In its current form, it allows users to:
 
 ## Architecture
 
-![architecture diagram of the dbt MCP server](docs/d2.png)
+![architecture diagram of the dbt MCP server](https://github.com/user-attachments/assets/89b8a24b-da7b-4e54-ba48-afceaa56f956)
 
 ## Setup
 

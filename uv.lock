@@ -147,7 +147,7 @@ wheels = [
 
 [[package]]
 name = "dbt-mcp"
-version = "0.1.1"
+version = "0.1.2rc1"
 source = { editable = "." }
 dependencies = [
     { name = "dbt-sl-sdk", extra = ["sync"] },

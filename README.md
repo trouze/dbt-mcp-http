@@ -118,6 +118,35 @@ After setup you can start, stop, and configure your MCP servers by:
 
 VS Code MCP docs [here](https://code.visualstudio.com/docs/copilot/chat/mcp-servers) for reference
 
+
+## Tools
+
+### dbt CLI
+
+* `build` - Executes models, tests, snapshots, and seeds in dependency order
+* `compile` - Generates executable SQL from models, tests, and analyses without running them
+* `docs` - Generates documentation for the dbt project
+* `ls` (list) - Lists resources in the dbt project, such as models and tests
+* `parse` - Parses and validates the project’s files for syntax correctness
+* `run` -  Executes models to materialize them in the database
+* `test` - Runs tests to validate data and model integrity
+
+
+### Semantic Layer
+
+* `list_metrics` - Retrieves all defined metrics
+* `get_dimensions` - Gets dimensions associated with specified metrics
+* `get_entities` - Gets entities associated with specified metrics
+* `query_metrics` - Queries metrics with optional grouping, ordering, filtering, and limiting
+
+
+### Discovery
+* `get_mart_models` - Gets all mart models
+* `get_all_models` - Gets all models
+* `get_model_details` - Gets details for a specific model
+* `get_model_parents` - Gets parent models of a specific model
+
 ## Contributing
 
 Read `CONTRIBUTING.md` for instructions on how to get involved!
+

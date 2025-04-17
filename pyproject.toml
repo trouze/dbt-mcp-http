@@ -45,12 +45,5 @@ dbt-mcp = "dbt_mcp.main:main"
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.hatch.build]
-sources = ["src"]
-packages = ["src/dbt_mcp"]
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/dbt_mcp"]
-
 [tool.hatch.build.targets.sdist]
 include = ["src/dbt_mcp/**/*", "README.md", "LICENSE"]

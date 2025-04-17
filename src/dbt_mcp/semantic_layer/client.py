@@ -33,7 +33,7 @@ class SemanticLayerFetcher:
         metrics_result = submit_request(
             ConnAttr(
                 host=self.host,
-                params={"environmentid": self.config.environment_id},
+                params={"environmentid": self.config.prod_environment_id},
                 auth_header=f"Bearer {self.config.token}",
             ),
             {"query": GRAPHQL_QUERIES["metrics"]},
@@ -54,7 +54,7 @@ class SemanticLayerFetcher:
             dimensions_result = submit_request(
                 ConnAttr(
                     host=self.host,
-                    params={"environmentid": self.config.environment_id},
+                    params={"environmentid": self.config.prod_environment_id},
                     auth_header=f"Bearer {self.config.token}",
                 ),
                 {
@@ -83,7 +83,7 @@ class SemanticLayerFetcher:
             entities_result = submit_request(
                 ConnAttr(
                     host=self.host,
-                    params={"environmentid": self.config.environment_id},
+                    params={"environmentid": self.config.prod_environment_id},
                     auth_header=f"Bearer {self.config.token}",
                 ),
                 {
@@ -223,14 +223,14 @@ def get_semantic_layer_fetcher(config: Config) -> SemanticLayerFetcher:
         host = f"{config.multicell_account_prefix}.semantic-layer.{config.host}"
     else:
         host = f"semantic-layer.{config.host}"
-    if config.environment_id is None:
+    if config.prod_environment_id is None:
         raise ValueError("Environment ID is required")
     if config.token is None:
         raise ValueError("Token is required")
     assert host is not None
 
     semantic_layer_client = SyncSemanticLayerClient(
-        environment_id=config.environment_id,
+        environment_id=config.prod_environment_id,
         auth_token=config.token,
         host=host,
     )

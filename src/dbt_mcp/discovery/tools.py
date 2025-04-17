@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 def register_discovery_tools(dbt_mcp: FastMCP, config: Config) -> None:
-    if not config.host or not config.token or not config.environment_id:
+    if not config.host or not config.token or not config.prod_environment_id:
         raise ValueError(
             "Host, token, and environment ID are required to use discovery tools. To disable discovery tools, set DISABLE_DISCOVERY=true in your environment."
         )
@@ -20,7 +20,7 @@ def register_discovery_tools(dbt_mcp: FastMCP, config: Config) -> None:
         multicell_account_prefix=config.multicell_account_prefix,
     )
     models_fetcher = ModelsFetcher(
-        api_client=api_client, environment_id=config.environment_id
+        api_client=api_client, environment_id=config.prod_environment_id
     )
 
     @dbt_mcp.tool(description=get_prompt("discovery/get_mart_models"))

@@ -7,7 +7,9 @@ from dotenv import load_dotenv
 @dataclass
 class Config:
     host: str | None
-    environment_id: int | None
+    prod_environment_id: int | None
+    dev_environment_id: int | None
+    user_id: int | None
     token: str | None
     project_dir: str | None
     dbt_cli_enabled: bool
@@ -24,7 +26,10 @@ def load_config() -> Config:
     load_dotenv()
 
     host = os.environ.get("DBT_HOST")
-    environment_id = os.environ.get("DBT_ENV_ID")
+    prod_environment_id = os.environ.get("DBT_PROD_ENV_ID")
+    legacy_prod_environment_id = os.environ.get("DBT_ENV_ID")
+    dev_environment_id = os.environ.get("DBT_DEV_ENV_ID")
+    user_id = os.environ.get("DBT_USER_ID")
     token = os.environ.get("DBT_TOKEN")
     project_dir = os.environ.get("DBT_PROJECT_DIR")
     dbt_path = os.environ.get("DBT_PATH", "dbt")
@@ -41,9 +46,9 @@ def load_config() -> Config:
             errors.append(
                 "DBT_HOST environment variable is required when semantic layer or discovery is enabled."
             )
-        if not environment_id:
+        if not prod_environment_id and not legacy_prod_environment_id:
             errors.append(
-                "DBT_ENV_ID environment variable is required when semantic layer or discovery is enabled."
+                "DBT_PROD_ENV_ID environment variable is required when semantic layer or discovery is enabled."
             )
         if not token:
             errors.append(
@@ -52,6 +57,15 @@ def load_config() -> Config:
         if host and (host.startswith("metadata") or host.startswith("semantic-layer")):
             errors.append(
                 "DBT_HOST must not start with 'metadata' or 'semantic-layer'."
+            )
+    if not disable_remote:
+        if not dev_environment_id:
+            errors.append(
+                "DBT_DEV_ENV_ID environment variable is required when remote MCP is enabled."
+            )
+        if not user_id:
+            errors.append(
+                "DBT_USER_ID environment variable is required when remote MCP is enabled."
             )
     if not disable_dbt_cli:
         if not project_dir:
@@ -70,9 +84,20 @@ def load_config() -> Config:
     if errors:
         raise ValueError("Errors found in configuration:\n\n" + "\n".join(errors))
 
+    # Allowing for configuration with legacy DBT_ENV_ID environment variable
+    actual_prod_environment_id = (
+        int(prod_environment_id)
+        if prod_environment_id
+        else int(legacy_prod_environment_id)
+        if legacy_prod_environment_id
+        else None
+    )
+
     return Config(
         host=host,
-        environment_id=int(environment_id) if environment_id else None,
+        prod_environment_id=actual_prod_environment_id,
+        dev_environment_id=int(dev_environment_id) if dev_environment_id else None,
+        user_id=int(user_id) if user_id else None,
         token=token,
         project_dir=project_dir,
         dbt_cli_enabled=not disable_dbt_cli,

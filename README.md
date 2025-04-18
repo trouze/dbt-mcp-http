@@ -11,25 +11,20 @@ In its current form, it allows users to:
 
 ![architecture diagram of the dbt MCP server](https://github.com/user-attachments/assets/89b8a24b-da7b-4e54-ba48-afceaa56f956)
 
-## Setup
 
-1. Clone the repository:
-```shell
-git clone https://github.com/dbt-labs/dbt-mcp.git
-cd dbt-mcp
+## Installation
+
+Want to get going quickly?
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/dbt-mcp/dbt-mcp/refs/heads/main/install.sh)"
 ```
+The installer also serves as an updater, simply run it again and it will detect your exisiting dbt-mcp installation and offer to update it.
 
-2. [Install uv](https://docs.astral.sh/uv/getting-started/installation/)
+## Configuration
 
-3. [Install Task](https://taskfile.dev/installation/)
+The MCP server takes the following configuration:
 
-4. Run `task install`
-
-5. Configure environment variables:
-```shell
-cp .env.example .env
-```
-Then edit `.env` with your specific environment variables:
 - `DISABLE_DBT_CLI`: Set this to `true` to disable dbt Core and dbt Cloud CLI MCP objects. Otherwise, they are enabled.
 - `DISABLE_SEMANTIC_LAYER`: Set this to `true` to disable dbt Semantic Layer MCP objects. Otherwise, they are enabled.
 - `DISABLE_DISCOVERY`: Set this to `true` to disable dbt Discovery API MCP objects. Otherwise, they are enabled.
@@ -42,7 +37,6 @@ Then edit `.env` with your specific environment variables:
 - `DBT_PROJECT_DIR`: The path to your dbt Project.
 - `DBT_PATH`: The path to your dbt Core or dbt Cloud CLI executable. You can find your dbt executable by running `which dbt`.
 - `DBT_EXECUTABLE_TYPE`: Set this to `core` if the `DBT_PATH` environment variable points toward dbt Core. Otherwise, dbt Cloud CLI is assumed
-
 
 ## Using with MCP Clients
 
@@ -147,6 +141,27 @@ VS Code MCP docs [here](https://code.visualstudio.com/docs/copilot/chat/mcp-serv
 * `get_all_models` - Gets all models
 * `get_model_details` - Gets details for a specific model
 * `get_model_parents` - Gets parent models of a specific model
+
+## Setup
+
+1. Clone the repository:
+```shell
+git clone https://github.com/dbt-labs/dbt-mcp.git
+cd dbt-mcp
+```
+
+2. [Install uv](https://docs.astral.sh/uv/getting-started/installation/)
+
+3. [Install Task](https://taskfile.dev/installation/)
+
+4. Run `task install`
+
+5. Configure environment variables:
+```shell
+cp .env.example .env
+```
+Then edit `.env` with your specific environment variables (see Configuration)
+
 
 ## Contributing
 

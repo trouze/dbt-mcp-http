@@ -115,7 +115,7 @@ prompt_with_default() {
 function install_dbt_mcp_package() {
     local target_package="$1"
     # sanity check to make sure the target package is dbt-mcp
-    if [[ ! "${target_package}" =~ "dbt-mcp" ]]; then
+    if [[ -n "${target_package}" && ! "${target_package}" =~ "dbt-mcp" ]]; then
         echo "========================================================="
         echo "Hold on! This does not look like a valid dbt-mcp package."
         echo "========================================================="
@@ -162,7 +162,7 @@ function configure_environment() {
 
     # Prompt for environment variables with defaults
     echo "Your dbt Cloud instance hostname."
-    echo "This will look like an \`Access URL\` found [here](https://docs.getdbt.com/docs/cloud/about-cloud/access-regions-ip-addresses). If you are using Multi-cell, do not include the \`ACCOUNT_PREFIX\` here."
+    echo "This will look like an \`Access URL\` found at https://docs.getdbt.com/docs/cloud/about-cloud/access-regions-ip-addresses. If you are using Multi-cell, do not include the \`ACCOUNT_PREFIX\` here."
     DBT_HOST=$(prompt_with_default "Enter DBT_HOST" "cloud.dbt.com")
 
     echo "Your personal access token or service token. Service token is required when using the Semantic Layer."
@@ -186,7 +186,7 @@ function configure_environment() {
     echo "Set this to \`core\` if the \`DBT_PATH\` environment variable points toward dbt Core. Otherwise, dbt Cloud CLI is assumed"
     DBT_EXECUTABLE_TYPE=$(prompt_with_default "Enter DBT_EXECUTABLE_TYPE" "cloud")
 
-    echo "If you are using Multi-cell, set this to your \`ACCOUNT_PREFIX\`. If you are not using Multi-cell, do not set this environment variable. You can learn more [here](https://docs.getdbt.com/docs/cloud/about-cloud/access-regions-ip-addresses)."
+    echo "If you are using Multi-cell, set this to your \`ACCOUNT_PREFIX\`. If you are not using Multi-cell, do not set this environment variable. You can learn more here : https://docs.getdbt.com/docs/cloud/about-cloud/access-regions-ip-addresses."
     MULTICELL_ACCOUNT_PREFIX=$(prompt_with_default "Enter MULTICELL_ACCOUNT_PREFIX" "")
 
     # Write to .env file

@@ -50,6 +50,8 @@ class GraphQLQueries:
                                 name
                                 compiledCode
                                 description
+                                database
+                                schema
                                 catalog {
                                     columns {
                                         description

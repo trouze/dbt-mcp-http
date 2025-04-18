@@ -1,0 +1,1 @@
+dbt show executes an arbitrary SQL statement against the database and returns the results. It is useful for debugging and inspecting data in your dbt project. Use the limit argument in place of a SQL `LIMIT` clause

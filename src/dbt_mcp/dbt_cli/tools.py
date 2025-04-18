@@ -1,4 +1,5 @@
 import subprocess
+from typing import Optional
 
 from mcp.server.fastmcp import FastMCP
 
@@ -48,3 +49,11 @@ def register_dbt_cli_tools(dbt_mcp: FastMCP, config: Config) -> None:
     @dbt_mcp.tool(description=get_prompt("dbt_cli/test"))
     def test() -> str:
         return _run_dbt_command(["test"])
+
+    @dbt_mcp.tool(description=get_prompt("dbt_cli/show"))
+    def show(sql_query: str, limit: Optional[int] = None) -> str:
+        args = ["show", "--inline", sql_query, "--favor-state"]
+        if limit:
+            args.extend(["--limit", str(limit)])
+        args.extend(["--output", "json"])
+        return _run_dbt_command(args)

@@ -11,6 +11,25 @@ In its current form, it allows users to:
 
 ![architecture diagram of the dbt MCP server](https://github.com/user-attachments/assets/89b8a24b-da7b-4e54-ba48-afceaa56f956)
 
+## Setup
+
+1. Clone the repository:
+```shell
+git clone https://github.com/dbt-labs/dbt-mcp.git
+cd dbt-mcp
+```
+
+2. [Install uv](https://docs.astral.sh/uv/getting-started/installation/)
+
+3. [Install Task](https://taskfile.dev/installation/)
+
+4. Run `task install`
+
+5. Configure environment variables:
+```shell
+cp .env.example .env
+```
+Then edit `.env` with your specific environment variables (see Configuration)
 
 ## Installation
 
@@ -127,6 +146,9 @@ VS Code MCP docs [here](https://code.visualstudio.com/docs/copilot/chat/mcp-serv
 * `parse` - Parses and validates the project’s files for syntax correctness
 * `run` -  Executes models to materialize them in the database
 * `test` - Runs tests to validate data and model integrity
+* `show` - Runs a query against the data warehouse
+
+> Allowing your client to utilize dbt commands through this MCP tooling could modify your data models, sources, and warehouse objects. Proceed only if you trust the client and understand the potential impact.
 
 
 ### Semantic Layer
@@ -142,26 +164,6 @@ VS Code MCP docs [here](https://code.visualstudio.com/docs/copilot/chat/mcp-serv
 * `get_all_models` - Gets all models
 * `get_model_details` - Gets details for a specific model
 * `get_model_parents` - Gets parent models of a specific model
-
-## Setup
-
-1. Clone the repository:
-```shell
-git clone https://github.com/dbt-labs/dbt-mcp.git
-cd dbt-mcp
-```
-
-2. [Install uv](https://docs.astral.sh/uv/getting-started/installation/)
-
-3. [Install Task](https://taskfile.dev/installation/)
-
-4. Run `task install`
-
-5. Configure environment variables:
-```shell
-cp .env.example .env
-```
-Then edit `.env` with your specific environment variables (see Configuration)
 
 
 ## Contributing

@@ -17,7 +17,7 @@ In its current form, it allows users to:
 Want to get going quickly?
 
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/dbt-mcp/dbt-mcp/refs/heads/main/install.sh)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/dbt-labs/dbt-mcp/refs/heads/main/install.sh)"
 ```
 The installer also serves as an updater, simply run it again and it will detect your exisiting dbt-mcp installation and offer to update it.
 

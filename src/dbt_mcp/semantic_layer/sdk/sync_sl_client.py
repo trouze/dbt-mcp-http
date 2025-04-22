@@ -28,6 +28,7 @@ class SyncSemanticLayerClient(
         auth_token: str,
         host: str,
         timeout: TimeoutOptions | float | int | None = None,
+        lazy: bool = False,
     ) -> None:
         """Initialize the Semantic Layer client.
 
@@ -44,6 +45,7 @@ class SyncSemanticLayerClient(
             gql_factory=SyncGraphQLClient,
             adbc_factory=SyncADBCClient,
             timeout=timeout,
+            lazy=lazy,
         )
 
     @contextmanager

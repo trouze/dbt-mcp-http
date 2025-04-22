@@ -1,35 +1,10 @@
 # dbt MCP Server
 
-This MCP (Model Context Protocol) server provides MCP tools to interact with dbt in a few different ways.
-
-In its current form, it allows users to:
-- run commands from their local install of the dbt Core or dbt Cloud CLI
-- get information about their models and the transformation configured in a given dbt project
-- interact with the dbt Cloud Semantic Layer gateway, getting the list of metrics, dimensions and directly querying those
+This MCP (Model Context Protocol) server provides tools to interact with dbt. Read [this](https://docs.getdbt.com/blog/introducing-dbt-mcp-server) blog to learn more.
 
 ## Architecture
 
 ![architecture diagram of the dbt MCP server](https://github.com/user-attachments/assets/89b8a24b-da7b-4e54-ba48-afceaa56f956)
-
-## Setup
-
-1. Clone the repository:
-```shell
-git clone https://github.com/dbt-labs/dbt-mcp.git
-cd dbt-mcp
-```
-
-2. [Install uv](https://docs.astral.sh/uv/getting-started/installation/)
-
-3. [Install Task](https://taskfile.dev/installation/)
-
-4. Run `task install`
-
-5. Configure environment variables:
-```shell
-cp .env.example .env
-```
-Then edit `.env` with your specific environment variables (see Configuration)
 
 ## Installation
 
@@ -62,13 +37,13 @@ The MCP server takes the following configuration:
 
 After going through [Setup](#setup), you can use your server with an MCP client.
 
-This configuration will be added to the respective client's config file:
+This configuration will be added to the respective client's config file. Be sure to replace the sections within `<>`:
 
 ```json
 {
   "mcpServers": {
     "dbt": {
-      "command": "<path-to-this-directory>/.venv/bin/mcp",
+      "command": "<path-to-mcp-executable>",
       "args": [
         "run",
         "<path-to-this-directory>/src/dbt_mcp/main.py"
@@ -77,17 +52,17 @@ This configuration will be added to the respective client's config file:
   }
 }
 ```
-Be sure to replace `<path-to-this-directory>`
 
-If you encounter any problems. You can try running `task run` to see errors in your terminal
+`<path-to-mcp-executable>` depends on your OS:
+- Linux & Mac: `<path-to-this-directory>/.venv/bin/mcp`
+- PC: `<path-to-this-directory>/.venv/Scripts/mcp`
 
 
 ## Claude Desktop
 
 Follow [these](https://modelcontextprotocol.io/quickstart/user) instructions to create the `claude_desktop_config.json` file and connect.
 
-You can find the Claude Desktop logs at `~/Library/Logs/Claude`.
-
+On Mac, you can find the Claude Desktop logs at `~/Library/Logs/Claude`.
 
 ## Cursor
 
@@ -98,27 +73,28 @@ You can find the Claude Desktop logs at `~/Library/Logs/Claude`.
 
 Cursor MCP docs [here](https://docs.cursor.com/context/model-context-protocol) for reference
 
-
 ## VS Code
 
 1. Open the Settings menu (Command + Comma) and select the correct tab atop the page for your use case
     - `Workspace` - configures the server in the context of your workspace
     - `User` - configures the server in the context of your user
-2. Select Features → Chat
-3. Ensure that "Mcp" is `Enabled`
-![mcp-vscode-settings](https://github.com/user-attachments/assets/3d3fa853-2398-422a-8a6d-7f0a97120aba)
 
+2. Select Features → Chat
+
+3. Ensure that "Mcp" is `Enabled`
+
+![mcp-vscode-settings](https://github.com/user-attachments/assets/3d3fa853-2398-422a-8a6d-7f0a97120aba)
 
 4. Click "Edit in settings.json" under "Mcp > Discovery"
 
-5. Add your server configuration (`dbt`) to the provided `settings.json` file as one of the servers
+5. Add your server configuration (`dbt`) to the provided `settings.json` file as one of the servers:
 ```json
 {
     "mcp": {
         "inputs": [],
         "servers": {
           "dbt": {
-            "command": "<path-to-this-directory>/.venv/bin/mcp",
+            "command": "<path-to-mcp-executable>",
             "args": ["run", "<path-to-this-directory>/src/dbt_mcp/main.py"]
           }
         }
@@ -126,14 +102,17 @@ Cursor MCP docs [here](https://docs.cursor.com/context/model-context-protocol) f
 }
 ```
 
-After setup you can start, stop, and configure your MCP servers by:
+`<path-to-mcp-executable>` depends on your OS:
+- Linux & Mac: `<path-to-this-directory>/.venv/bin/mcp`
+- PC: `<path-to-this-directory>/.venv/Scripts/mcp`
+
+6. You can start, stop, and configure your MCP servers by:
 - Running the `MCP: List Servers` command from the Command Palette (Control + Command + P) and selecting the server
 - Utlizing the keywords inline within the `settings.json` file
 
 ![inline-management](https://github.com/user-attachments/assets/d33d4083-5243-4b36-adab-72f12738c263)
 
 VS Code MCP docs [here](https://code.visualstudio.com/docs/copilot/chat/mcp-servers) for reference
-
 
 ## Tools
 

@@ -85,10 +85,13 @@ function check_python() {
         exit 1
     fi
 
-    # check if python is version 3.12
+    # check if python version is 3.12 or higher
     python_version=$($(python) --version 2>&1 | awk '{print $2}')
-    if [[ ! "${python_version}" =~ 3\.12 ]]; then
-        echo "Python version ${python_version} is not supported. Please install Python 3.12."
+    major_version=$(echo "${python_version}" | cut -d. -f1)
+    minor_version=$(echo "${python_version}" | cut -d. -f2)
+
+    if [[ "${major_version}" -lt 3 ]] || ([[ "${major_version}" -eq 3 ]] && [[ "${minor_version}" -lt 12 ]]); then
+        echo "Python version ${python_version} is not supported. Please install Python 3.12 or higher."
         exit 1
     fi
 }

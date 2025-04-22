@@ -14,12 +14,13 @@ classifiers = [
   "Intended Audience :: Developers",
 ]
 dependencies = [
+  # Pinning all dependencies because this app is installed with pip
+  # and we want to have a consistent install as much as possible.
   "dbt-sl-sdk[sync]==0.11.0",
-  # We are using some internal functions, so pinning this dependency.
   "mcp[cli]==1.6.0",
-  "pandas>=2.2.3",
-  "python-dotenv>=1.0.1",
-  "requests>=2.32.3",
+  "pandas==2.2.3",
+  "python-dotenv==1.0.1",
+  "requests==2.32.3",
 ]
 [dependency-groups]
 dev = [

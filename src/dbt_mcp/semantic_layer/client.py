@@ -1,14 +1,13 @@
 from functools import cache
 
-from dbtsl.api.shared.query_params import OrderByGroupBy
+from dbtsl.api.shared.query_params import GroupByParam, OrderByGroupBy
+from dbtsl.client.sync import SyncSemanticLayerClient
 from dbtsl.error import QueryFailedError
 
 from dbt_mcp.config.config import Config
 from dbt_mcp.semantic_layer.gql.gql import GRAPHQL_QUERIES
 from dbt_mcp.semantic_layer.gql.gql_request import ConnAttr, submit_request
 from dbt_mcp.semantic_layer.levenshtein import get_misspellings
-from dbt_mcp.semantic_layer.sdk.query_params import GroupByParam
-from dbt_mcp.semantic_layer.sdk.sync_sl_client import SyncSemanticLayerClient
 from dbt_mcp.semantic_layer.types import (
     DimensionToolResponse,
     EntityToolResponse,

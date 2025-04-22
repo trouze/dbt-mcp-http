@@ -1,6 +1,7 @@
+from dbtsl.api.shared.query_params import GroupByParam, GroupByType
+
 from dbt_mcp.config.config import load_config
 from dbt_mcp.semantic_layer.client import get_semantic_layer_fetcher
-from dbt_mcp.semantic_layer.sdk.query_params import GroupByParam, GroupByType
 from dbt_mcp.semantic_layer.types import OrderByParam
 
 config = load_config()

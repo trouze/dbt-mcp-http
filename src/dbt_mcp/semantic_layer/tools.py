@@ -1,12 +1,12 @@
 import logging
 from time import time
 
+from dbtsl.api.shared.query_params import GroupByParam
 from mcp.server.fastmcp import FastMCP
 
 from dbt_mcp.config.config import Config
 from dbt_mcp.prompts.prompts import get_prompt
 from dbt_mcp.semantic_layer.client import get_semantic_layer_fetcher
-from dbt_mcp.semantic_layer.sdk.query_params import GroupByParam
 from dbt_mcp.semantic_layer.types import (
     DimensionToolResponse,
     EntityToolResponse,

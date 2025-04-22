@@ -2,6 +2,7 @@ import json
 from typing import Any
 
 import pytest
+from dbtsl.api.shared.query_params import GroupByParam
 from openai import OpenAI
 from openai.types.responses import (
     FunctionToolParam,
@@ -15,7 +16,6 @@ from client.tools import get_tools
 from dbt_mcp.config.config import load_config
 from dbt_mcp.mcp.server import dbt_mcp
 from dbt_mcp.semantic_layer.client import get_semantic_layer_fetcher
-from dbt_mcp.semantic_layer.sdk.query_params import GroupByParam
 from dbt_mcp.semantic_layer.types import OrderByParam, QueryMetricsSuccess
 
 LLM_MODEL = "gpt-4o-mini"

@@ -31,7 +31,6 @@ The MCP server takes the following configuration:
 - `DBT_TOKEN`: Your personal access token or service token. Service token is required when using the Semantic Layer.
 - `DBT_PROJECT_DIR`: The path to your dbt Project.
 - `DBT_PATH`: The path to your dbt Core or dbt Cloud CLI executable. You can find your dbt executable by running `which dbt`.
-- `DBT_EXECUTABLE_TYPE`: Set this to `core` if the `DBT_PATH` environment variable points toward dbt Core. Otherwise, dbt Cloud CLI is assumed
 
 ## Using with MCP Clients
 

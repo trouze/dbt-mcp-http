@@ -1,5 +1,4 @@
 import subprocess
-from typing import Optional
 
 from mcp.server.fastmcp import FastMCP
 
@@ -9,18 +8,15 @@ from dbt_mcp.prompts.prompts import get_prompt
 
 def register_dbt_cli_tools(dbt_mcp: FastMCP, config: Config) -> None:
     def _run_dbt_command(command: list[str]) -> str:
-        result = subprocess.run(
+        process = subprocess.Popen(
             args=[config.dbt_command, *command],
             cwd=config.project_dir,
-            capture_output=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
             text=True,
-            check=False,
         )
-        # Cloud CLI reports errors to stderr, Core CLI reports errors to stdout
-        if config.dbt_executable_type == "cloud" and result.returncode != 0:
-            return result.stderr
-        else:
-            return result.stdout
+        output, _ = process.communicate()
+        return output
 
     @dbt_mcp.tool(description=get_prompt("dbt_cli/build"))
     def build() -> str:
@@ -51,7 +47,7 @@ def register_dbt_cli_tools(dbt_mcp: FastMCP, config: Config) -> None:
         return _run_dbt_command(["test"])
 
     @dbt_mcp.tool(description=get_prompt("dbt_cli/show"))
-    def show(sql_query: str, limit: Optional[int] = None) -> str:
+    def show(sql_query: str, limit: int | None = None) -> str:
         args = ["show", "--inline", sql_query, "--favor-state"]
         if limit:
             args.extend(["--limit", str(limit)])

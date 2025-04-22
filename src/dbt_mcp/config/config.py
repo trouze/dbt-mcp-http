@@ -17,7 +17,6 @@ class Config:
     discovery_enabled: bool
     remote_enabled: bool
     dbt_command: str
-    dbt_executable_type: str
     multicell_account_prefix: str | None
     remote_mcp_url: str
 
@@ -33,7 +32,6 @@ def load_config() -> Config:
     token = os.environ.get("DBT_TOKEN")
     project_dir = os.environ.get("DBT_PROJECT_DIR")
     dbt_path = os.environ.get("DBT_PATH", "dbt")
-    dbt_executable_type = os.environ.get("DBT_EXECUTABLE_TYPE", "cloud")
     disable_dbt_cli = os.environ.get("DISABLE_DBT_CLI", "false") == "true"
     disable_semantic_layer = os.environ.get("DISABLE_SEMANTIC_LAYER", "false") == "true"
     disable_discovery = os.environ.get("DISABLE_DISCOVERY", "false") == "true"
@@ -76,10 +74,6 @@ def load_config() -> Config:
             errors.append(
                 "DBT_PATH environment variable is required when dbt CLI MCP is enabled."
             )
-        if dbt_executable_type not in ["core", "cloud"]:
-            errors.append(
-                "DBT_EXECUTABLE_TYPE environment variable must be either 'core' or 'cloud' when dbt CLI MCP is enabled."
-            )
 
     if errors:
         raise ValueError("Errors found in configuration:\n\n" + "\n".join(errors))
@@ -105,7 +99,6 @@ def load_config() -> Config:
         discovery_enabled=not disable_discovery,
         remote_enabled=not disable_remote,
         dbt_command=dbt_path,
-        dbt_executable_type=dbt_executable_type,
         multicell_account_prefix=multicell_account_prefix,
         remote_mcp_url=(
             "http://" if host and host.startswith("localhost") else "https://"

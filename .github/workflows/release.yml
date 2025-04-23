@@ -30,8 +30,6 @@ jobs:
       - name: setup python
         uses: ./.github/actions/setup-python
         id: setup-python
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
       - name: Install go-task
         run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
       # TODO: Uncomment this when we have tests

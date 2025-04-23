@@ -1,9 +1,5 @@
 name: Setup Python
 description: Setup Python for ai-codegen-api
-inputs:
-  python-version:
-    description: Python version to use when executing tests and generating code coverage report
-    required: true
 
 runs:
   using: "composite"
@@ -12,7 +8,7 @@ runs:
       id: setup-python
       uses: actions/setup-python@v5
       with:
-        python-version: ${{ inputs.python-version }}
+        python-version: 3.13
 
     - name: Setup uv
       uses: astral-sh/setup-uv@v4

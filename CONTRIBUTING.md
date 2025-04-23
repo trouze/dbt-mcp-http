@@ -22,6 +22,10 @@ cp .env.example .env
 ```
 Then edit `.env` with your specific environment variables (see the `Configuration` section of the `README.md`).
 
+## Changelog
+
+Every PR requires a changelog entry. [Install changie](https://changie.dev/) and run `changie new` to create a new changelog entry.
+
 ## Debugging
 
 If you encounter any problems. You can try running `task run` to see errors in your terminal.

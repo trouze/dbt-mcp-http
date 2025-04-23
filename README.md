@@ -13,40 +13,64 @@ Want to get going quickly?
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/dbt-labs/dbt-mcp/refs/heads/main/install.sh)"
 ```
-The installer also serves as an updater, simply run it again and it will detect your exisiting dbt-mcp installation and offer to update it.
+The installer also serves as an updater, simply run it again and it will detect your exisiting dbt-mcp installation and offers to update it.
 
 ## Configuration
 
 The MCP server takes the following configuration:
 
-- `DISABLE_DBT_CLI`: Set this to `true` to disable dbt Core and dbt Cloud CLI MCP objects. Otherwise, they are enabled.
-- `DISABLE_SEMANTIC_LAYER`: Set this to `true` to disable dbt Semantic Layer MCP objects. Otherwise, they are enabled.
-- `DISABLE_DISCOVERY`: Set this to `true` to disable dbt Discovery API MCP objects. Otherwise, they are enabled.
-- `DISABLE_REMOTE`: Set this to `false` to enable remote MCP objects. They are disable by default.
-- `DBT_HOST`: Your dbt Cloud instance hostname. This will look like an `Access URL` found [here](https://docs.getdbt.com/docs/cloud/about-cloud/access-regions-ip-addresses). If you are using Multi-cell, do not include the `ACCOUNT_PREFIX` here.
-- `MULTICELL_ACCOUNT_PREFIX`: If you are using Multi-cell, set this to your `ACCOUNT_PREFIX`. If you are not using Multi-cell, do not set this environment variable. You can learn more [here](https://docs.getdbt.com/docs/cloud/about-cloud/access-regions-ip-addresses).
-- `DBT_PROD_ENV_ID`: Your dbt Cloud production environment ID.
-- `DBT_DEV_ENV_ID`: Your dbt Cloud development environment ID.
-- `DBT_USER_ID`: Your dbt Cloud user ID.
-- `DBT_TOKEN`: Your personal access token or service token. Service token is required when using the Semantic Layer.
-- `DBT_PROJECT_DIR`: The path to your dbt Project.
-- `DBT_PATH`: The path to your dbt Core or dbt Cloud CLI executable. You can find your dbt executable by running `which dbt`.
+
+### Tool Groups
+| Name | Default | Description |
+|------|---------|-------------|
+| `DISABLE_DBT_CLI` | `false` | Set this to `true` to disable dbt Core and dbt Cloud CLI MCP tools |
+| `DISABLE_SEMANTIC_LAYER` | `false` | Set this to `true` to disable dbt Semantic Layer MCP objects |
+| `DISABLE_DISCOVERY` | `false` | Set this to `true` to disable dbt Discovery API MCP objects |
+| `DISABLE_REMOTE` | `true` | Set this to `false` to enable remote MCP objects |
+
+
+### Configuration for Discovery and Semantic Layer
+| Name | Default | Description |
+|------|---------|-------------|
+| `DBT_HOST` | `cloud.getdbt.com` | Your dbt Cloud instance hostname. This will look like an `Access URL` found [here](https://docs.getdbt.com/docs/cloud/about-cloud/access-regions-ip-addresses). If you are using Multi-cell, do not include the `ACCOUNT_PREFIX` here |
+| `MULTICELL_ACCOUNT_PREFIX` | - | If you are using Multi-cell, set this to your `ACCOUNT_PREFIX`. If you are not using Multi-cell, do not set this environment variable. You can learn more [here](https://docs.getdbt.com/docs/cloud/about-cloud/access-regions-ip-addresses) |
+| `DBT_TOKEN` | - | Your personal access token or service token. **Note** Service token is required when using the Semantic Layer |
+| `DBT_PROD_ENV_ID` | - | Your dbt Cloud production environment ID |
+
+### Configuration for Remote Tools
+| Name | Description |
+|------|-------------|
+| `DBT_DEV_ENV_ID` | Your dbt Cloud development environment ID |
+| `DBT_USER_ID` | Your dbt Cloud user ID |
+
+### Configuration for dbt CLI
+| Name | Description |
+|------|-------------|
+| `DBT_PROJECT_DIR` | The path to your dbt Project |
+| `DBT_PATH` | The path to your dbt Core or dbt Cloud CLI executable. You can find your dbt executable by running `which dbt` |
 
 ## Using with MCP Clients
 
-After going through [Setup](#setup), you can use your server with an MCP client.
+After going through [Installation](#installation), you can use your server with an MCP client.
 
 This configuration will be added to the respective client's config file. Be sure to replace the sections within `<>`:
 
+If you used the installation script, the mcp server has been installed in your user directory at `~/.dbt-mcp/`.
+
 ```json
-{
+ {
   "mcpServers": {
-    "dbt": {
-      "command": "<path-to-mcp-executable>",
+    "dbt-mcp": {
+      "command": "/Users/<YOUR USERNAME>/.dbt-mcp/.venv/bin/mcp",
       "args": [
         "run",
-        "<path-to-this-directory>/src/dbt_mcp/main.py"
-      ]
+        "/Users/<YOUR USERNAME>/.dbt-mcp/.venv/lib/python3.12/site-packages/dbt_mcp/main.py"
+      ],
+      "env": {
+        // see config above
+        // "DBT_HOST": "cloud.getdbt.com"
+        // "DBT_TOKEN": "dbtu_...."
+      }
     }
   }
 }

@@ -9,6 +9,9 @@ jobs:
   check:
     name: Check styling
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - name: checkout code
         uses: actions/checkout@v4
@@ -24,6 +27,9 @@ jobs:
   unit-test:
     name: Unit test
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: write
     needs:
       - check
     steps:

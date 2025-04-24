@@ -1,0 +1,36 @@
+name: Check CHANGELOG
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check-changelog:
+    permissions:
+      contents: read
+      pull-requests: write
+    runs-on: ubuntu-latest
+    if: "!startsWith(github.event.head_commit.message, 'Release: v')"
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: setup python
+        uses: ./.github/actions/setup-python
+        id: setup-python
+      - name: Check for changes
+        run: |
+          ALL_CHANGES=$(git diff --name-only HEAD origin/main)
+
+          CHANGIE=$(echo "$ALL_CHANGES" | grep -E "\.changes/unreleased/.*\.yaml" || true)
+          if [ "$CHANGIE" == "" ]; then
+            echo "No files added to '.changes/unreleased/'. Make sure you run 'changie new'."
+            exit 1
+          fi
+
+          CHANGELOG=$(echo "$ALL_CHANGES" | grep -E "CHANGELOG\.md" || true)
+          if [ "$CHANGELOG" != "" ]; then
+            echo "Don't edit 'CHANGELOG.md' manually nor run 'changie merge'."
+            exit 1
+          fi

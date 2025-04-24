@@ -7,7 +7,7 @@ versionFormat: '## {{.Version}} - {{.Time.Format "2006-01-02"}}'
 kindFormat: '### {{.Kind}}'
 changeFormat: '* {{.Body}}'
 kinds:
-    - label: Breaking Changes
+    - label: Breaking Change
       auto: major
     - label: Enhancement or New Feature
       auto: minor

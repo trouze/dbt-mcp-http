@@ -39,12 +39,12 @@ jobs:
         run: task build
       - name: Publish to test PyPI
         if: inputs.pypi-server == 'test-pypi'
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc
         with:
           packages-dir: ./dist
           repository-url: https://test.pypi.org/legacy/
       - name: Publish to PyPI
         if: inputs.pypi-server == 'pypi'
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc
         with:
           packages-dir: ./dist

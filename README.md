@@ -101,6 +101,7 @@ Cursor MCP docs [here](https://docs.cursor.com/context/model-context-protocol) f
 1. Open the Settings menu (Command + Comma) and select the correct tab atop the page for your use case
     - `Workspace` - configures the server in the context of your workspace
     - `User` - configures the server in the context of your user
+    - **Note for WSL users**: If you're using VS Code with WSL, you'll need to configure WSL-specific settings. Run the **Preferences: Open Remote Settings** command from the Command Palette (F1) or select the **Remote** tab in the Settings editor. Local User settings are reused in WSL but can be overridden with WSL-specific settings. Configuring MCP servers in the local User settings will not work properly in a WSL environment.
 
 2. Select Features → Chat
 

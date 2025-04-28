@@ -94,6 +94,8 @@ function check_python() {
         echo "Python version ${python_version} is not supported. Please install Python 3.12 or higher."
         exit 1
     fi
+
+    echo "Using Python version: ${python_version}"
 }
 
 # Function to prompt for input with a default value

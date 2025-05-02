@@ -70,16 +70,11 @@ This configuration will be added to the respective client's config file. Be sure
  {
   "mcpServers": {
     "dbt-mcp": {
-      "command": "/Users/<YOUR USERNAME>/.dbt-mcp/.venv/bin/mcp",
+      "command": "<path-to-mcp-executable>",
       "args": [
         "run",
-        "/Users/<YOUR USERNAME>/.dbt-mcp/.venv/lib/python3.12/site-packages/dbt_mcp/main.py"
-      ],
-      "env": {
-        // see config above
-        // "DBT_HOST": "cloud.getdbt.com"
-        // "DBT_TOKEN": "dbtu_...."
-      }
+        "<path-to-this-directory>/src/dbt_mcp/main.py"
+      ]
     }
   }
 }

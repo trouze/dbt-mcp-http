@@ -170,7 +170,8 @@ VS Code MCP docs [here](https://code.visualstudio.com/docs/copilot/chat/mcp-serv
 * `get_mart_models` - Gets all mart models
 * `get_all_models` - Gets all models
 * `get_model_details` - Gets details for a specific model
-* `get_model_parents` - Gets parent models of a specific model
+* `get_model_parents` - Gets parent nodes of a specific model
+* `get_model_children` - Gets children modes of a specific model
 
 
 ## Contributing

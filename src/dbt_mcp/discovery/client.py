@@ -67,7 +67,67 @@ class GraphQLQueries:
         }
     """)
 
-    GET_MODEL_PARENTS = textwrap.dedent("""
+    COMMON_FIELDS_PARENTS_CHILDREN = textwrap.dedent("""
+        {
+        ... on ExposureAppliedStateNestedNode {
+            resourceType
+            name
+            description
+        }
+        ... on ExternalModelNode {
+            resourceType
+            description
+            name
+        }
+        ... on MacroDefinitionNestedNode {
+            resourceType
+            name
+            description
+        }
+        ... on MetricDefinitionNestedNode {
+            resourceType
+            name
+            description
+        }
+        ... on ModelAppliedStateNestedNode {
+            resourceType
+            name
+            description
+        }
+        ... on SavedQueryDefinitionNestedNode {
+            resourceType
+            name
+            description
+        }
+        ... on SeedAppliedStateNestedNode {
+            resourceType
+            name
+            description
+        }
+        ... on SemanticModelDefinitionNestedNode {
+            resourceType
+            name
+            description
+        }
+        ... on SnapshotAppliedStateNestedNode {
+            resourceType
+            name
+            description
+        }
+        ... on SourceAppliedStateNestedNode {
+            resourceType
+            name
+            description
+        }
+        ... on TestAppliedStateNestedNode {
+            resourceType
+            name
+            description
+        }
+    """)
+
+    GET_MODEL_PARENTS = (
+        textwrap.dedent("""
         query GetModelParents(
             $environmentId: BigInt!,
             $modelsFilter: ModelAppliedFilter
@@ -81,62 +141,10 @@ class GraphQLQueries:
                         }
                         edges {
                             node {
-                                parents {
-                                    ... on ExposureAppliedStateNestedNode {
-                                        resourceType
-                                        name
-                                        description
-                                    }
-                                    ... on ExternalModelNode {
-                                        resourceType
-                                        description
-                                        name
-                                    }
-                                    ... on MacroDefinitionNestedNode {
-                                        resourceType
-                                        name
-                                        description
-                                    }
-                                    ... on MetricDefinitionNestedNode {
-                                        resourceType
-                                        name
-                                        description
-                                    }
-                                    ... on ModelAppliedStateNestedNode {
-                                        resourceType
-                                        name
-                                        description
-                                    }
-                                    ... on SavedQueryDefinitionNestedNode {
-                                        resourceType
-                                        name
-                                        description
-                                    }
-                                    ... on SeedAppliedStateNestedNode {
-                                        resourceType
-                                        name
-                                        description
-                                    }
-                                    ... on SemanticModelDefinitionNestedNode {
-                                        resourceType
-                                        name
-                                        description
-                                    }
-                                    ... on SnapshotAppliedStateNestedNode {
-                                        resourceType
-                                        name
-                                        description
-                                    }
-                                    ... on SourceAppliedStateNestedNode {
-                                        resourceType
-                                        name
-                                        description
-                                    }
-                                    ... on TestAppliedStateNestedNode {
-                                        resourceType
-                                        name
-                                        description
-                                    }
+                                parents 
+    """)
+        + COMMON_FIELDS_PARENTS_CHILDREN
+        + textwrap.dedent("""
                                 }
                             }
                         }
@@ -145,6 +153,36 @@ class GraphQLQueries:
             }
         }
     """)
+    )
+
+    GET_MODEL_CHILDREN = (
+        textwrap.dedent("""
+        query GetModelChildren(
+            $environmentId: BigInt!,
+            $modelsFilter: ModelAppliedFilter
+            $first: Int,
+        ) {
+            environment(id: $environmentId) {
+                applied {
+                    models(filter: $modelsFilter, first: $first) {
+                        pageInfo {
+                            endCursor
+                        }
+                        edges {
+                            node {
+                                children 
+    """)
+        + COMMON_FIELDS_PARENTS_CHILDREN
+        + textwrap.dedent("""
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    """)
+    )
 
 
 class MetadataAPIClient:
@@ -249,3 +287,18 @@ class ModelsFetcher:
         if not edges:
             return []
         return edges[0]["node"]["parents"]
+
+    def fetch_model_children(self, model_name: str) -> list[dict]:
+        variables = {
+            "environmentId": self.environment_id,
+            "modelsFilter": {"identifier": model_name},
+            "first": 1,
+        }
+        result = self.api_client.execute_query(
+            GraphQLQueries.GET_MODEL_CHILDREN, variables
+        )
+        raise_gql_error(result)
+        edges = result["data"]["environment"]["applied"]["models"]["edges"]
+        if not edges:
+            return []
+        return edges[0]["node"]["children"]

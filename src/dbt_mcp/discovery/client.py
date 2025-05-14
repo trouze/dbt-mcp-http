@@ -27,6 +27,7 @@ class GraphQLQueries:
                         edges {
                             node {
                                 name
+                                uniqueId
                                 description
                             }
                         }
@@ -48,6 +49,7 @@ class GraphQLQueries:
                         edges {
                             node {
                                 name
+                                uniqueId
                                 compiledCode
                                 description
                                 database
@@ -258,10 +260,15 @@ class ModelsFetcher:
 
         return all_edges
 
-    def fetch_model_details(self, model_name: str) -> dict:
+    def fetch_model_details(
+        self, model_name: str, unique_id: str | None = None
+    ) -> dict:
+        model_filters: dict[str, list[str] | str] = (
+            {"uniqueIds": [unique_id]} if unique_id else {"identifier": model_name}
+        )
         variables = {
             "environmentId": self.environment_id,
-            "modelsFilter": {"identifier": model_name},
+            "modelsFilter": model_filters,
             "first": 1,
         }
         result = self.api_client.execute_query(
@@ -273,10 +280,15 @@ class ModelsFetcher:
             return {}
         return edges[0]["node"]
 
-    def fetch_model_parents(self, model_name: str) -> list[dict]:
+    def fetch_model_parents(
+        self, model_name: str, unique_id: str | None = None
+    ) -> list[dict]:
+        model_filters: dict[str, list[str] | str] = (
+            {"uniqueIds": [unique_id]} if unique_id else {"identifier": model_name}
+        )
         variables = {
             "environmentId": self.environment_id,
-            "modelsFilter": {"identifier": model_name},
+            "modelsFilter": model_filters,
             "first": 1,
         }
         result = self.api_client.execute_query(
@@ -288,10 +300,15 @@ class ModelsFetcher:
             return []
         return edges[0]["node"]["parents"]
 
-    def fetch_model_children(self, model_name: str) -> list[dict]:
+    def fetch_model_children(
+        self, model_name: str, unique_id: str | None = None
+    ) -> list[dict]:
+        model_filters: dict[str, list[str] | str] = (
+            {"uniqueIds": [unique_id]} if unique_id else {"identifier": model_name}
+        )
         variables = {
             "environmentId": self.environment_id,
-            "modelsFilter": {"identifier": model_name},
+            "modelsFilter": model_filters,
             "first": 1,
         }
         result = self.api_client.execute_query(

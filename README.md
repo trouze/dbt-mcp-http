@@ -28,8 +28,7 @@ Then edit `.env` with your specific environment variables (see the `Configuratio
 
 ## Configuration
 
-The MCP server takes the following configuration:
-
+The MCP server takes the following environment variable configuration:
 
 ### Tool Groups
 | Name | Default | Description |
@@ -173,6 +172,9 @@ VS Code MCP docs [here](https://code.visualstudio.com/docs/copilot/chat/mcp-serv
 * `get_model_parents` - Gets parent nodes of a specific model
 * `get_model_children` - Gets children modes of a specific model
 
+### Remote
+* `text_to_sql` - Generate SQL from natural language requests
+* `execute_sql` - Execute SQL on dbt Cloud's backend infrastructure with support for Semantic Layer SQL syntax.
 
 ## Contributing
 

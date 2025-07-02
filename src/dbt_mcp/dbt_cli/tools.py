@@ -1,5 +1,6 @@
 import os
 import subprocess
+from collections.abc import Iterable
 
 from mcp.server.fastmcp import FastMCP
 from pydantic import Field
@@ -13,13 +14,17 @@ def register_dbt_cli_tools(dbt_mcp: FastMCP, config: DbtCliConfig) -> None:
         command: list[str],
         selector: str | None = None,
         timeout: int | None = None,
+        resource_type: list[str] | None = None,
     ) -> str:
         # Commands that should always be quiet to reduce output verbosity
-        verbose_commands = ["build", "compile", "docs", "parse", "run", "test"]
+        verbose_commands = ["build", "compile", "docs", "parse", "run", "test", "list"]
 
         if selector:
             selector_params = str(selector).split(" ")
             command = command + ["--select"] + selector_params
+
+        if isinstance(resource_type, Iterable):
+            command = command + ["--resource-type"] + resource_type
 
         full_command = command.copy()
         # Add --quiet flag to specific commands to reduce context window usage
@@ -27,9 +32,6 @@ def register_dbt_cli_tools(dbt_mcp: FastMCP, config: DbtCliConfig) -> None:
             main_command = full_command[0]
             command_args = full_command[1:] if len(full_command) > 1 else []
             full_command = [main_command, "--quiet", *command_args]
-
-        # Make the format json to make it easier to parse for the LLM
-        full_command = full_command + ["--log-format", "json"]
 
         # We change the path only if this is an absolute path, otherwise we can have
         # problems with relative paths applied multiple times as DBT_PROJECT_DIR
@@ -67,9 +69,15 @@ def register_dbt_cli_tools(dbt_mcp: FastMCP, config: DbtCliConfig) -> None:
         selector: str | None = Field(
             default=None, description=get_prompt("dbt_cli/args/selectors")
         ),
+        resource_type: list[str] | None = Field(
+            default=None,
+            description=get_prompt("dbt_cli/args/resource_type"),
+        ),
     ) -> str:
         try:
-            return _run_dbt_command(["list"], selector, timeout=10)
+            return _run_dbt_command(
+                ["list"], selector, timeout=10, resource_type=resource_type
+            )
         except subprocess.TimeoutExpired:
             return (
                 "Timeout: dbt list command took too long to complete. "

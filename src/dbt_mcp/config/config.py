@@ -6,6 +6,8 @@ import yaml
 from pydantic import BaseModel, Field, field_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
+from dbt_mcp.tools.tool_names import ToolName
+
 
 class TrackingConfig(BaseModel):
     host: str | None = None
@@ -71,7 +73,7 @@ class DbtMcpSettings(BaseSettings):
     disable_semantic_layer: bool = Field(False, alias="DISABLE_SEMANTIC_LAYER")
     disable_discovery: bool = Field(False, alias="DISABLE_DISCOVERY")
     disable_remote: bool = Field(True, alias="DISABLE_REMOTE")
-    disable_tools: Annotated[list[str], NoDecode] = Field(
+    disable_tools: Annotated[list[ToolName], NoDecode] = Field(
         default_factory=list, alias="DISABLE_TOOLS"
     )
 
@@ -87,8 +89,11 @@ class DbtMcpSettings(BaseSettings):
 
     @field_validator("disable_tools", mode="before")
     @classmethod
-    def parse_disable_tools(cls, value: str) -> list[str]:
-        return [tool.strip() for tool in value.split(",") if tool.strip()]
+    def parse_disable_tools(cls, env_var: str | list) -> list[ToolName]:
+        if not env_var:
+            return []
+        assert isinstance(env_var, str)
+        return [ToolName(tool.strip()) for tool in env_var.split(",") if tool.strip()]
 
 
 class Config(BaseModel):
@@ -97,7 +102,7 @@ class Config(BaseModel):
     dbt_cli_config: DbtCliConfig | None = None
     discovery_config: DiscoveryConfig | None = None
     semantic_layer_config: SemanticLayerConfig | None = None
-    disable_tools: list[str]
+    disable_tools: list[ToolName]
 
 
 def load_config() -> Config:

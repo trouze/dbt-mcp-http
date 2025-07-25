@@ -24,6 +24,9 @@ dependencies = [
   "pydantic-settings==2.10.1",
   "pyyaml==6.0.2",
   "requests==2.32.4",
+  # HTTP server dependencies
+  "fastapi==0.115.6",
+  "uvicorn[standard]==0.32.1",
 ]
 [dependency-groups]
 dev = [
@@ -46,6 +49,7 @@ Changelog = "https://github.com/dbt-labs/dbt-mcp/blob/main/CHANGELOG.md"
 
 [project.scripts]
 dbt-mcp = "dbt_mcp.main:main"
+dbt-mcp-http = "dbt_mcp.http_server:main"
 
 [build-system]
 requires = ["hatchling", "hatch-vcs"]

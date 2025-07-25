@@ -1,0 +1,15 @@
+dbt-protos==1.0.317
+dbt-sl-sdk[sync]==0.11.0
+dbtlabs-vortex==0.2.0
+mcp[cli]==1.10.1
+pandas==2.2.3
+pydantic-settings==2.10.1
+pyyaml==6.0.2
+requests==2.32.4
+
+# HTTP server dependencies
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+
+# Production server
+gunicorn==21.2.0

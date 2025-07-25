@@ -1,4 +1,46 @@
-# dbt MCP Server
+# dbt MCP 
+
+## Deploying to Azure Web App
+```
+zip -r deploy.zip .env startup.sh requirements.txt pyproject.toml LICENSE README.md dbt_mcp-0.2.14.dev1+gae5c14a.d20250723-py3-none-any.whl
+```
+
+```
+az webapp deploy --name dbt-mcp --resource-group dbtMCP --src-path deploy.zip --type zip
+```
+
+## Testing
+```
+# Build and run
+docker build -t dbt-mcp-server .
+docker run -p 8000:8000 --env-file docker.env --name dbt-mcp-test dbt-mcp-server
+
+# Test the refresh endpoint
+curl -X POST http://localhost:8000/refresh-project
+```
+
+```
+curl -X GET http://localhost:8000/health
+curl -X GET http://localhost:8000/tools/list
+curl -X POST http://localhost:8000/tools/call \
+  -H "Content-Type: application/json" \
+  -d '{
+    "params": {
+      "name": "list_models",
+      "arguments": {}
+    }
+  }'
+curl -X POST http://localhost:8000/tools/call \
+  -H "Content-Type: application/json" \
+  -d '{
+    "params": {
+      "name": "get_model",
+      "arguments": {
+        "model_name": "dim_roster"
+      }
+    }
+  }'
+```
 
 This MCP (Model Context Protocol) server provides tools to interact with dbt. Read [this](https://docs.getdbt.com/blog/introducing-dbt-mcp-server) blog to learn more. Add comments or questions to GitHub Issues or join us in [the community Slack](https://www.getdbt.com/community/join-the-community) in the `#tools-dbt-mcp` channel.
 

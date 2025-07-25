@@ -1,8 +1,10 @@
 __pycache__/
 .venv/
-.env
 .mypy_cache/
 .pytest_cache/
 *.egg-info/
 .idea/
 vortex_dev_mode_output.jsonl
+keys/
+docker.env
+.env

@@ -8,3 +8,4 @@ vortex_dev_mode_output.jsonl
 keys/
 docker.env
 .env
+secrets.env

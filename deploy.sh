@@ -46,6 +46,8 @@ az container create \
   --cpu 1 \
   --memory 2 \
   --environment-variables \
+    PORT="80" \
+    HOST="0.0.0.0" \
     DBT_HOST="$DBT_HOST" \
     DBT_PROD_ENV_ID="$DBT_PROD_ENV_ID" \
     DBT_DEV_ENV_ID="$DBT_DEV_ENV_ID" \

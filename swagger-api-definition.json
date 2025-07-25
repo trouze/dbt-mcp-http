@@ -1,0 +1,262 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "dbt MCP Server API",
+    "description": "HTTP API for dbt Model Context Protocol (MCP) Server - Provides tools for dbt project management, discovery, semantic layer queries, and remote operations",
+    "version": "1.0.0",
+    "contact": {
+      "name": "dbt MCP Server",
+      "url": "https://github.com/trouze/dbt-mcp-http"
+    }
+  },
+  "host": "dbt-mcp-server-unique.canadacentral.azurecontainer.io",
+  "basePath": "/",
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health Check",
+        "description": "Check if the dbt MCP server is running and healthy",
+        "operationId": "healthCheck",
+        "responses": {
+          "200": {
+            "description": "Server is healthy",
+            "schema": {
+              "$ref": "#/definitions/HealthResponse"
+            }
+          }
+        },
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/tools/list": {
+      "get": {
+        "summary": "List Available Tools",
+        "description": "Get a list of all available MCP tools that can be called",
+        "operationId": "listTools",
+        "responses": {
+          "200": {
+            "description": "List of available tools",
+            "schema": {
+              "$ref": "#/definitions/ToolsListResponse"
+            }
+          },
+          "500": {
+            "description": "Server not initialized or error occurred",
+            "schema": {
+              "$ref": "#/definitions/SimpleErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "Tools"
+        ]
+      }
+    },
+    "/tools/call": {
+      "post": {
+        "summary": "Call MCP Tool",
+        "description": "Execute a specific MCP tool with provided arguments",
+        "operationId": "callTool",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ToolCallRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tool executed successfully",
+            "schema": {
+              "$ref": "#/definitions/ToolCallResponse"
+            }
+          },
+          "400": {
+            "description": "Bad request - tool name is required",
+            "schema": {
+              "$ref": "#/definitions/SimpleErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Server error or tool execution failed",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        },
+        "tags": [
+          "Tools"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "HealthResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "example": "ok"
+        },
+        "service": {
+          "type": "string",
+          "example": "dbt-mcp"
+        }
+      },
+      "required": [
+        "status",
+        "service"
+      ]
+    },
+    "ToolsListResponse": {
+      "type": "object",
+      "properties": {
+        "tools": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Tool"
+          }
+        }
+      }
+    },
+    "Tool": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the tool",
+          "example": "dbt_run"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of what the tool does",
+          "example": "Run dbt models"
+        },
+        "inputSchema": {
+          "type": "object",
+          "description": "JSON schema defining the tool's input parameters"
+        }
+      },
+      "required": [
+        "name",
+        "description"
+      ]
+    },
+    "ToolCallRequest": {
+      "type": "object",
+      "properties": {
+        "params": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Name of the tool to call",
+              "example": "dbt_run"
+            },
+            "arguments": {
+              "type": "object",
+              "description": "Arguments to pass to the tool",
+              "example": {
+                "models": "my_model",
+                "select": "tag:daily"
+              }
+            }
+          },
+          "required": [
+            "name"
+          ]
+        }
+      },
+      "required": [
+        "params"
+      ]
+    },
+    "ToolCallResponse": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "type": "object",
+          "properties": {
+            "content": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "description": "Tool execution result content"
+              }
+            }
+          }
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "object",
+          "description": "Error information",
+          "properties": {
+            "code": {
+              "type": "integer",
+              "example": -1,
+              "description": "Error code"
+            },
+            "message": {
+              "type": "string",
+              "example": "Tool execution failed",
+              "description": "Error message"
+            }
+          }
+        }
+      }
+    },
+    "SimpleErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string",
+          "example": "Server not initialized",
+          "description": "Simple error message"
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Health",
+      "description": "Health check operations"
+    },
+    {
+      "name": "Tools",
+      "description": "MCP tool operations - list and execute dbt, discovery, semantic layer, and remote tools"
+    }
+  ],
+  "x-ms-connector-metadata": [
+    {
+      "propertyName": "Website",
+      "propertyValue": "https://github.com/trouze/dbt-mcp-http"
+    },
+    {
+      "propertyName": "Privacy policy",
+      "propertyValue": "https://github.com/trouze/dbt-mcp-http"
+    },
+    {
+      "propertyName": "Categories",
+      "propertyValue": "Data;AI"
+    }
+  ]
+}

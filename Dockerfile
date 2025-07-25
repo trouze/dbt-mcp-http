@@ -26,8 +26,10 @@ COPY src/ ./src/
 # Copy SSH keys for git access (if needed)
 RUN mkdir -p ./keys
 
-# Set Python path
+# Set Python path and default port
 ENV PYTHONPATH=/app/src
+ENV PORT=80
+ENV HOST=0.0.0.0
 
 # Expose port
 EXPOSE 80

@@ -246,9 +246,10 @@ def main():
     
     # Get configuration from environment
     host = os.getenv("HOST", "0.0.0.0")
-    port = int(os.getenv("PORT", "8000"))
+    port = int(os.getenv("PORT", "80"))
     
     logger.info(f"Starting dbt-mcp HTTP server on {host}:{port}")
+    logger.info(f"Environment variables: HOST={host}, PORT={port}")
     
     # Create and run the app
     app = create_http_app()
